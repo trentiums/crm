@@ -94,7 +94,6 @@
     columns: [
       { data: 'placeholder', name: 'placeholder' },
 { data: 'id', name: 'id' },
-{ data: 'company_user_id', name: 'company_user_id' },
 { data: 'name', name: 'name' },
 { data: 'description', name: 'description' },
 { data: 'documents', name: 'documents', sortable: false, searchable: false },
