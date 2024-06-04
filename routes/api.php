@@ -1,26 +1,30 @@
 <?php
 
-Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1\Admin', 'middleware' => ['auth:sanctum']], function () {
-    // Company
-    Route::post('companies/media', 'CompanyApiController@storeMedia')->name('companies.storeMedia');
-    Route::apiResource('companies', 'CompanyApiController');
+Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], function () {
+    Route::post('login', 'LoginApiController@login');
 
-    // Company User
-    Route::apiResource('company-users', 'CompanyUserApiController');
+    Route::group(['middleware' => ['auth:sanctum']], function () {
+        // Company
+        Route::post('companies/media', 'CompanyApiController@storeMedia')->name('companies.storeMedia');
+        Route::apiResource('companies', 'CompanyApiController');
 
-    // Lead Channels
-    Route::apiResource('lead-channels', 'LeadChannelsApiController');
+        // Company User
+        Route::apiResource('company-users', 'CompanyUserApiController');
 
-    // Product Service
-    Route::post('product-services/media', 'ProductServiceApiController@storeMedia')->name('product-services.storeMedia');
-    Route::apiResource('product-services', 'ProductServiceApiController');
+        // Lead Channels
+        Route::apiResource('lead-channels', 'LeadChannelsApiController');
 
-    // Lead Status
-    Route::apiResource('lead-statuses', 'LeadStatusApiController');
+        // Product Service
+        Route::post('product-services/media', 'ProductServiceApiController@storeMedia')->name('product-services.storeMedia');
+        Route::apiResource('product-services', 'ProductServiceApiController');
 
-    // Lead Conversion
-    Route::apiResource('lead-conversions', 'LeadConversionApiController');
+        // Lead Status
+        Route::apiResource('lead-statuses', 'LeadStatusApiController');
 
-    // Leads
-    Route::apiResource('leads', 'LeadsApiController');
+        // Lead Conversion
+        Route::apiResource('lead-conversions', 'LeadConversionApiController');
+
+        // Leads
+        Route::apiResource('leads', 'LeadsApiController');
+    });
 });

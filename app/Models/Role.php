@@ -27,6 +27,12 @@ class Role extends Model
         'deleted_at',
     ];
 
+    const ROLES = [
+        "1" => "Admin",
+        "2" => "Company Admin",
+        "3" => "Company Staff"
+    ];
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
