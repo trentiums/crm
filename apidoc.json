@@ -1,0 +1,11 @@
+{
+    "name": "Lead CRM API Documentation",
+    "version": "1.0.0",
+    "description": "All the api request are maintained",
+    "title": "Lead CRM API Documentation",
+    "sampleUrl": "http://localhost/tsp/crm/public",
+    "url" : "https://crm.trentiums.com",
+    "order": [
+
+    ]
+}

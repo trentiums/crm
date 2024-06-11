@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use DB;
 use Hash;
-use Illuminate\Support\Str;
 use App\Traits\Validation;
 
 class LoginApiController extends Controller
@@ -89,9 +88,6 @@ class LoginApiController extends Controller
      *       "message": "There is some issue with your account detail, please try again."
      *     }
      */
-    /*
-     * Function for login user, social login & manually login.
-     */
     public function login(Request $request)
     {
         try {
@@ -158,7 +154,6 @@ class LoginApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
-            dd($ex);
             Auditable::log_audit_data('LoginApiController@login Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }

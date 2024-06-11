@@ -8,3 +8,22 @@ Notice: seed is important, because it will create the first admin user for you.
 Run php artisan key:generate command.
 If you have file/photo fields, run php artisan storage:link command.
 And that's it, go to your domain and login:
+
+Default credentials
+Username: admin@admin.com
+Password: password
+
+
+1) API document generate command
+apidoc -i app/Http/Controllers/Api/V1 -o public/apidoc/
+
+2) Create Migration
+php artisan make:migration update_rapidapi_player_seasons_table
+
+3) Run Specific Migration
+php artisan migrate --path=/database/migrations/2024_06_06_091135_add_rapidapi_player_column_table.php
+
+ALTER TABLE `subscriptions` ADD `stripe_product_id` VARCHAR(191) NULL DEFAULT NULL AFTER `description`;
+ALTER TABLE `subscriptions` ADD `stripe_product_price_id` VARCHAR(191) NULL DEFAULT NULL AFTER `stripe_product_id`;
+ALTER TABLE `subscriptions` ADD `stripe_plan_id` VARCHAR(191) NULL DEFAULT NULL AFTER `stripe_product_price_id`;
+

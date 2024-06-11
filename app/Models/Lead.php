@@ -44,6 +44,18 @@ class Lead extends Model
         'deleted_at',
     ];
 
+    const ORDER_BY = [
+        "1" => "created_at",
+        "2" => "name",
+        "3" => "email",
+        "4" => "company_user_id",
+    ];
+
+    const ORDER = [
+        "1" => "ASC",
+        "2" => "DESC",
+    ];
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
