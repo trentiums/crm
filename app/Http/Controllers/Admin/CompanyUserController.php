@@ -9,9 +9,11 @@ use App\Http\Requests\StoreCompanyUserRequest;
 use App\Http\Requests\UpdateCompanyUserRequest;
 use App\Models\Company;
 use App\Models\CompanyUser;
+use App\Models\Role;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -66,10 +68,12 @@ class CompanyUserController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+        $companies = NULL;
+        if($user->user_role == array_flip(Role::ROLES)['Admin']){
+            $companies = Company::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        }
         abort_if(Gate::denies('company_user_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $companies = Company::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-
         $users = User::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         return view('admin.companyUsers.create', compact('companies', 'users'));
@@ -77,7 +81,29 @@ class CompanyUserController extends Controller
 
     public function store(StoreCompanyUserRequest $request)
     {
-        $companyUser = CompanyUser::create($request->all());
+        $userRequest = $request->all();
+        $user = new User();
+        $user->name = $userRequest['name'];
+        $user->email = $userRequest['email'];
+        $user->password = $userRequest['password'];
+        $user->email_verified_at = date("Y-m-d H:i:s");
+        $user->user_role = array_flip(Role::ROLES)['Company Staff'];
+        $userDetails = $user->save();
+        $user->roles()->sync(array_flip(Role::ROLES)['Company Staff']);
+
+        $userMain = Auth::user();
+        if($userMain->user_role == array_flip(Role::ROLES)['Admin']){
+            $company_id = $userRequest['company_id'];
+        }
+        else{
+            $company = Company::where("user_id","=",$userMain->id)->first();
+            $company_id = $company->id;
+        }
+
+        $companyUser = new CompanyUser();
+        $companyUser->user_id = $user->id;
+        $companyUser->company_id = $company_id;
+        $companyUser->save();
 
         return redirect()->route('admin.company-users.index');
     }

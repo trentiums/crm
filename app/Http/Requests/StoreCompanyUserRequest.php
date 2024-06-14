@@ -18,12 +18,19 @@ class StoreCompanyUserRequest extends FormRequest
     {
         return [
             'company_id' => [
-                'required',
                 'integer',
+                'exists:companies,id',
             ],
-            'user_id' => [
+            'name' => [
+                'string',
                 'required',
-                'integer',
+            ],
+            'email' => [
+                'required',
+                'unique:users',
+            ],
+            'password' => [
+                'required',
             ],
         ];
     }
