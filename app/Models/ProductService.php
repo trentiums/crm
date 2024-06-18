@@ -54,6 +54,6 @@ class ProductService extends Model implements HasMedia
 
     public function companyUser()
     {
-        return $this->belongsTo(CompanyUser::class, 'company_user_id');
+        return $this->belongsTo(CompanyUser::class);
     }
 }

@@ -35,11 +35,16 @@ class CompanyUser extends Model
 
     public function company()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo(Company::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function productServices()
+    {
+        return $this->hasMany(ProductService::class);
     }
 }

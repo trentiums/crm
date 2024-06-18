@@ -34,9 +34,9 @@ class ProductServiceApiController extends Controller
      *
      *   Authorization is based on token shared while login
      *
-     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     * @apiHeader {String} authorization (Bearer Token) Authorization value.
      *
-     *   @apiHeaderExample {json} Header-Example:
+     * @apiHeaderExample {json} Header-Example:
      *     {
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
@@ -66,12 +66,13 @@ class ProductServiceApiController extends Controller
      *       "message": "Something wen't wrong please try again"
      *     }
      */
-    public function product_services_list(Request $request){
+    public function product_services_list(Request $request)
+    {
         try {
             $user = $request->user();
-            $leadConversion = ProductService::join('company_users','company_users.id',"=","product_services.company_user_id")
-                ->where("company_users.user_id","=",$user->id)
-                ->get(['product_services.id','product_services.name','product_services.description']);
+            $leadConversion = ProductService::join('company_users', 'company_users.id', "=", "product_services.company_user_id")
+                ->where("company_users.user_id", "=", $user->id)
+                ->get(['product_services.id', 'product_services.name', 'product_services.description']);
 
             return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
         } catch (Exception $ex) {
@@ -93,9 +94,9 @@ class ProductServiceApiController extends Controller
      *
      *   Authorization is based on token shared while login
      *
-     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     * @apiHeader {String} authorization (Bearer Token) Authorization value.
      *
-     *   @apiHeaderExample {json} Header-Example:
+     * @apiHeaderExample {json} Header-Example:
      *     {
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
@@ -137,8 +138,8 @@ class ProductServiceApiController extends Controller
             ];
             $fields['documents'] = [
                 'file',
-                'max:'.config('settings.file_size.general'),
-                'mimes:'.config('settings.supported_file_extension.general'),
+                'max:' . config('settings.file_size.general'),
+                'mimes:' . config('settings.supported_file_extension.general'),
             ];
 
             $error = Validator::make($request->all(), $fields, [
@@ -154,7 +155,7 @@ class ProductServiceApiController extends Controller
                 return $validationResponse;
             }
 
-            $companyUser = CompanyUser::where('user_id',"=",$user->id)->first();
+            $companyUser = CompanyUser::where('user_id', "=", $user->id)->first();
             $userRequest['company_user_id'] = $companyUser->id;
             $productService = ProductService::create($userRequest);
 
@@ -192,17 +193,18 @@ class ProductServiceApiController extends Controller
                 return $validationResponse;
             }
 
-            $getCompany = CompanyUser::where('user_id',"=",$user->id)->first();
-            if(empty($getCompany)){
+            $getCompany = CompanyUser::where('user_id', "=", $user->id)->first();
+            if (empty($getCompany)) {
                 Auditable::log_audit_data('ProductServiceApiController@details_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $leadConversion = ProductService::join('company_users','company_users.id',"=","product_services.company_user_id")
-                ->where("company_users.company_id","=",$getCompany->company_id)
-                ->where("product_services.id","=",$userRequest['product_service_id'])
+            $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
+                    $query->where('company_id', $getCompany->company_id);
+                })
+                ->where('id', $userRequest['product_service_id'])
                 ->first();
-            return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
+            return response()->json(['status' => true, 'data' => $productService], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('ProductServiceApiController@details_product_services Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
@@ -214,7 +216,7 @@ class ProductServiceApiController extends Controller
         $productService->update($request->all());
 
         if ($request->input('documents', false)) {
-            if (! $productService->documents || $request->input('documents') !== $productService->documents->file_name) {
+            if (!$productService->documents || $request->input('documents') !== $productService->documents->file_name) {
                 if ($productService->documents) {
                     $productService->documents->delete();
                 }
