@@ -17,3 +17,6 @@ yarn-error.log
 /.idea
 /.vscode
 /composer.lock
+/docker/
+/public/apidoc/
+/sail
