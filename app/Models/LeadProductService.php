@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeadProductService extends Model
 {
-    use Auditable, HasFactory;
+    use HasFactory;
 
     public $table = 'lead_product_service';
 

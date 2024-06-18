@@ -280,7 +280,6 @@ class LeadApiController extends Controller
                     'string',
                     'min:2',
                     'email:rfc,dns',
-                    'exists:users,email',
                 ],
                 'phone' => [
                     'string',
@@ -320,6 +319,10 @@ class LeadApiController extends Controller
                     'required',
                     'exists:lead_conversions,id',
                     'integer',
+                ],
+                'budget' => [
+                  'nullable',
+                  'string'
                 ],
                 'time_line' => [
                     'string',
@@ -385,8 +388,8 @@ class LeadApiController extends Controller
             $lead->time_line = $userRequest['time_line'];
             $lead->description = $userRequest['description'];
             $lead->deal_amount = $userRequest['deal_amount'];
-            $lead->win_close_reason = $userRequest['email'];
-            $lead->deal_close_date = $userRequest['email'];
+            $lead->win_close_reason = $userRequest['win_close_reason'];
+            $lead->deal_close_date = $userRequest['deal_close_date'];
             $lead->save();
 
             if(isset($userRequest['product_services']) && !empty($userRequest['product_services'])){
