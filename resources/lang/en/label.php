@@ -14,11 +14,16 @@ return [
     'order_by_in_error_msg'                     => 'Invalid order by, please try again.',
     'sort_order_integer_error_msg'              => 'Invalid sort order, please try again.',
     'sort_order_in_error_msg'                   => 'Invalid sort order, please try again.',
-
     'lead_status_id_integer_error_msg'          => 'Invalid lead status, please try again.',
     'lead_status_id_exists_error_msg'           => 'Invalid lead status, please try again.',
     'lead_channel_id_integer_error_msg'         => 'Invalid lead channel, please try again.',
     'lead_channel_id_exists_error_msg'          => 'Invalid lead channel, please try again.',
     'lead_conversion_id_integer_error_msg'      => 'Invalid lead conversion, please try again.',
     'lead_conversion_id_exists_error_msg'       => 'Invalid lead conversion, please try again.',
+    'product_saved_success_message'             => 'Product/Service saved success.',
+    'name_required_error_msg'                   => 'Invalid Product/Service name, please try again.',
+    'name_string_error_msg'                     => 'Invalid Product/Service name, please try again.',
+    'documents_file_error_msg'                  => 'Invalid documents, please try again.',
+    'documents_max_error_msg'                   => 'The file may not be greater than :max kilobytes',
+    'documents_mimes_error_msg'                 => 'The file must be a file of type: :values.',
 ];

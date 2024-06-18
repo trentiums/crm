@@ -21,6 +21,11 @@ class StoreProductServiceRequest extends FormRequest
                 'string',
                 'required',
             ],
+            'documents' => [
+                'file',
+                'max:'.config('settings.file_size.general'),
+                'mimes:'.config('settings.supported_file_extension.general'),
+            ]
         ];
     }
 }
