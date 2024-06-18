@@ -28,6 +28,14 @@ return [
     'documents_mimes_error_msg'                 => 'The file must be a file of type: :values.',
 
 
+    'email_required_error_msg'                   => 'Invalid email, please try again.',
+    'email_string_error_msg'                     => 'Invalid email, please try again.',
+    'email_format_error_msg'                     => 'Invalid email, please try again.',
+    'email_exists_error_msg'                     => 'Invalid email, please try again.',
+    'password_required_error_msg'                => 'Invalid password, please try again.',
+    'password_string_error_msg'                  => 'Invalid password, please try again.',
+    'password_min_error_msg'                     => 'Invalid password, please try again.',
+    'password_regex_error_msg'                   => 'Invalid password, please try again.',
     'lead_name_required_error_msg'               => 'Invalid name, please try again.',
     'lead_name_string_error_msg'                 => 'Invalid name, please try again.',
     'lead_phone_string_error_msg'                => 'Invalid phone, please try again.',
