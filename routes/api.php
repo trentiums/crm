@@ -14,7 +14,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::post('save-product-services', 'ProductServiceApiController@save_product_services');
         Route::post('update-product-services', 'ProductServiceApiController@update_product_services');
         Route::get('details-product-services', 'ProductServiceApiController@details_product_services');
-
+        Route::post('save-lead', 'LeadApiController@save_lead');
 
         // Company
         //Route::post('companies/media', 'CompanyApiController@storeMedia')->name('companies.storeMedia');

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
+use App\Models\CompanyUser;
 use App\Models\Lead;
+use App\Models\LeadProductService;
 use App\Traits\Auditable;
 use Illuminate\Http\Request;
 use Exception;
@@ -260,6 +262,146 @@ class LeadApiController extends Controller
             return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('LeadApiController@lead_list Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
+        }
+    }
+
+    public function save_lead(Request $request){
+        try {
+            $userRequest = $request->all();
+            $user = $request->user();
+            $fields = [
+                'name' => [
+                    'string',
+                    'required',
+                ],
+                'email' => [
+                    'nullable',
+                    'string',
+                    'min:2',
+                    'email:rfc,dns',
+                    'exists:users,email',
+                ],
+                'phone' => [
+                    'string',
+                    'nullable',
+                ],
+                'company_name' => [
+                    'string',
+                    'nullable',
+                ],
+                'company_size' => [
+                    'string',
+                    'nullable',
+                ],
+                'company_website' => [
+                    'string',
+                    'nullable',
+                ],
+                'lead_status_id' => [
+                    'required',
+                    'exists:lead_statuses,id',
+                    'integer',
+                ],
+                'lead_channel_id' => [
+                    'required',
+                    'exists:lead_channels,id',
+                    'integer',
+                ],
+                'product_services.*' => [
+                    'integer',
+                    'exists:product_services,id'
+                ],
+                'product_services' => [
+                    'required',
+                    'array',
+                ],
+                'lead_conversion_id' => [
+                    'required',
+                    'exists:lead_conversions,id',
+                    'integer',
+                ],
+                'time_line' => [
+                    'string',
+                    'nullable',
+                ],
+                'win_close_reason' => [
+                    'string',
+                    'nullable',
+                ],
+                'deal_close_date' => [
+                    'date_format:' . config('panel.date_format'),
+                    'nullable',
+                ],
+            ];
+
+            $error = Validator::make($userRequest, $fields, [
+                'name.required' => trans('label.lead_name_required_error_msg'),
+                'name.string' => trans('label.lead_name_string_error_msg'),
+                'email.string' => trans('label.email_string_error_msg'),
+                'email.email' => trans('label.email_format_error_msg'),
+                'email.exists' => trans('label.email_exists_error_msg'),
+                'phone.string' => trans('label.lead_phone_string_error_msg'),
+                'company_name.string' => trans('label.company_name_string_error_msg'),
+                'company_size.string' => trans('label.company_size_string_error_msg'),
+                'company_website.string' => trans('label.company_website_string_error_msg'),
+                'lead_status_id.required' => trans('label.lead_status_id_required_error_msg'),
+                'lead_status_id.exists' => trans('label.lead_status_id_exists_error_msg'),
+                'lead_status_id.integer' => trans('label.lead_status_id_integer_error_msg'),
+                'lead_channel_id.required' => trans('label.lead_channel_id_required_error_msg'),
+                'lead_channel_id.exists' => trans('label.lead_channel_id_exists_error_msg'),
+                'lead_channel_id.integer' => trans('label.lead_channel_id_integer_error_msg'),
+                'product_services.*.required' => trans('label.product_services_required_error_msg'),
+                'product_services.*.exists' => trans('label.product_services_exists_error_msg'),
+                'product_services.required' => trans('label.product_services_required_error_msg'),
+                'product_services.array' => trans('label.product_services_array_error_msg'),
+                'lead_conversion_id.required' => trans('label.lead_conversion_id_required_error_msg'),
+                'lead_conversion_id.exists' => trans('label.lead_conversion_id_exists_error_msg'),
+                'lead_conversion_id.integer' => trans('label.lead_conversion_id_integer_error_msg'),
+                'time_line.string' => trans('label.time_line_string_error_msg'),
+                'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
+                'deal_close_date.string' => trans('label.deal_close_date_string_error_msg')
+            ]);
+
+            $validationResponse = $this->check_validation($fields, $error, 'Lead List');
+            if (!$validationResponse->getData()->status) {
+                return $validationResponse;
+            }
+
+            $companyUser = CompanyUser::where("user_id","=",$user->id)->first();
+
+            $lead = new Lead();
+            $lead->company_user_id = $companyUser->id;
+            $lead->name = $userRequest['name'];
+            $lead->phone = $userRequest['phone'];
+            $lead->email = $userRequest['email'];
+            $lead->company_name = $userRequest['company_name'];
+            $lead->company_size = $userRequest['company_size'];
+            $lead->company_website = $userRequest['company_website'];
+            $lead->lead_status_id = $userRequest['lead_status_id'];
+            $lead->lead_channel_id = $userRequest['lead_channel_id'];
+            $lead->lead_conversion_id = $userRequest['lead_conversion_id'];
+            $lead->budget = $userRequest['budget'];
+            $lead->time_line = $userRequest['time_line'];
+            $lead->description = $userRequest['description'];
+            $lead->deal_amount = $userRequest['deal_amount'];
+            $lead->win_close_reason = $userRequest['email'];
+            $lead->deal_close_date = $userRequest['email'];
+            $lead->save();
+
+            if(isset($userRequest['product_services']) && !empty($userRequest['product_services'])){
+                $arrData = [];
+                foreach($userRequest['product_services'] as $keyProduct => $valueProduct){
+                    $arrData[$keyProduct]['lead_id'] = $lead->id;
+                    $arrData[$keyProduct]['product_service_id'] = $valueProduct;
+                }
+
+                LeadProductService::insert($arrData);
+            }
+
+            return response()->json(['status' => true, 'message' => trans('label.lead_insert_success_msg')], $this->successStatus);
+        } catch (Exception $ex) {
+            Auditable::log_audit_data('LeadApiController@save_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }

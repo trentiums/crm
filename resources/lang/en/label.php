@@ -26,4 +26,22 @@ return [
     'documents_file_error_msg'                  => 'Invalid documents, please try again.',
     'documents_max_error_msg'                   => 'The file may not be greater than :max kilobytes',
     'documents_mimes_error_msg'                 => 'The file must be a file of type: :values.',
+
+
+    'lead_name_required_error_msg'               => 'Invalid name, please try again.',
+    'lead_name_string_error_msg'                 => 'Invalid name, please try again.',
+    'lead_phone_string_error_msg'                => 'Invalid phone, please try again.',
+    'company_name_string_error_msg'              => 'Invalid company, please try again.',
+    'company_size_string_error_msg'              => 'Invalid company size, please try again.',
+    'company_website_string_error_msg'           => 'Invalid company website, please try again.',
+    'lead_status_id_required_error_msg'          => 'Invalid lead status, please try again.',
+    'lead_channel_id_required_error_msg'         => 'Invalid lead channel, please try again.',
+    'product_services_required_error_msg'        => 'Invalid product/services, please try again.',
+    'product_services_exists_error_msg'          => 'Invalid product/services, please try again.',
+    'product_services_array_error_msg'           => 'Invalid product/services, please try again.',
+    'lead_conversion_id_required_error_msg'      => 'Invalid lead conversation, please try again.',
+    'time_line_string_error_msg'                 => 'Invalid lead conversation, please try again.',
+    'win_close_reason_string_error_msg'          => 'Invalid win/close reason, please try again.',
+    'deal_close_date_string_error_msg'           => 'Invalid deal close sate, please try again.',
+    'lead_insert_success_msg'                    => 'Lead saved successfully.',
 ];
