@@ -388,6 +388,10 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
+     * @apiParam {file}   [documents]    Document
+     *
+     *    Validate `documents` is file
+     *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
      *    "name": "Bhargav",
@@ -514,6 +518,12 @@ class LeadApiController extends Controller
                     'date_format:' . config('panel.date_format'),
                     'nullable',
                 ],
+                'documents' => [
+                    'nullable',
+                    'file',
+                    'max:' . config('settings.file_size.general'),
+                    'mimes:' . config('settings.supported_file_extension.general'),
+                ]
             ];
 
             $error = Validator::make($userRequest, $fields, [
@@ -559,7 +569,7 @@ class LeadApiController extends Controller
                 return $validationResponse;
             }
 
-            if($request->country_code_alpha){
+            if ($request->country_code_alpha) {
                 $country = Country::where('country_code_alpha', $request->country_code_alpha)->first();
             }
 
@@ -647,7 +657,7 @@ class LeadApiController extends Controller
      *
      *    Validate `name` is string
      *
-      * @apiParam {string}   [email]    Email
+     * @apiParam {string}   [email]    Email
      *
      *    Validate `email` is required if phone is not entered
      *
@@ -750,6 +760,10 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
+     * @apiParam {file}   [documents]    Document
+     *
+     *    Validate `documents` is file
+     * 
      * @apiParamExample {bodyJson} Request-Example:
      *    {
      *    "name": "Bhargav",
@@ -881,6 +895,12 @@ class LeadApiController extends Controller
                     'date_format:' . config('panel.date_format'),
                     'nullable',
                 ],
+                'documents' => [
+                    'nullable',
+                    'file',
+                    'max:' . config('settings.file_size.general'),
+                    'mimes:' . config('settings.supported_file_extension.general'),
+                ]
             ];
 
             $error = Validator::make($userRequest, $fields, [
@@ -931,20 +951,21 @@ class LeadApiController extends Controller
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
                 $lead->name = $userRequest['name'];
-                $lead->phone = $userRequest['phone'];
-                $lead->email = $userRequest['email'];
-                $lead->company_name = $userRequest['company_name'];
-                $lead->company_size = $userRequest['company_size'];
-                $lead->company_website = $userRequest['company_website'];
+                $lead->phone = $userRequest['phone'] ?? null;
+                $lead->email = $userRequest['email'] ?? null;
+                $lead->company_name = $userRequest['company_name'] ?? null;
+                $lead->company_size = $userRequest['company_size'] ?? null;
+                $lead->company_website = $userRequest['company_website'] ?? null;
                 $lead->lead_status_id = $userRequest['lead_status_id'];
                 $lead->lead_channel_id = $userRequest['lead_channel_id'];
                 $lead->lead_conversion_id = $userRequest['lead_conversion_id'];
-                $lead->budget = $userRequest['budget'];
-                $lead->time_line = $userRequest['time_line'];
-                $lead->description = $userRequest['description'];
-                $lead->deal_amount = $userRequest['deal_amount'];
-                $lead->win_close_reason = $userRequest['win_close_reason'];
-                $lead->deal_close_date = $userRequest['deal_close_date'];
+                $lead->budget = $userRequest['budget'] ?? null;
+                $lead->time_line = $userRequest['time_line'] ?? null;
+                $lead->description = $userRequest['description'] ?? null;
+                $lead->deal_amount = $userRequest['deal_amount'] ?? null;
+                $lead->win_close_reason = $userRequest['win_close_reason'] ?? null;
+                $lead->deal_close_date = $userRequest['deal_close_date'] ?? null;
+                $lead->country_id = isset($country) ? $country->id : null;
                 $lead->save();
 
                 if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
