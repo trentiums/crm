@@ -18,10 +18,10 @@ Password: password
 apidoc -i app/Http/Controllers/Api/V1 -o public/apidoc/
 
 2) Create Migration
-php artisan make:migration update_rapidapi_player_seasons_table
+php artisan make:migration create_lead_history_table
 
 3) Run Specific Migration
-php artisan migrate --path=/database/migrations/2024_06_06_091135_add_rapidapi_player_column_table.php
+php artisan migrate --path=/database/migrations/2024_06_19_052100_create_lead_history_table.php
 
 ALTER TABLE `subscriptions` ADD `stripe_product_id` VARCHAR(191) NULL DEFAULT NULL AFTER `description`;
 ALTER TABLE `subscriptions` ADD `stripe_product_price_id` VARCHAR(191) NULL DEFAULT NULL AFTER `stripe_product_id`;

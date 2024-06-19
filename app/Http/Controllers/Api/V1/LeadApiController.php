@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyUser;
 use App\Models\Lead;
+use App\Models\LeadHistory;
 use App\Models\LeadProductService;
 use App\Traits\Auditable;
 use Illuminate\Http\Request;
@@ -401,6 +402,13 @@ class LeadApiController extends Controller
 
                 LeadProductService::insert($arrData);
             }
+
+            $leadHistory = new LeadHistory();
+            $leadHistory->lead_id = $lead->id;
+            $leadHistory->company_user_id = $companyUser->id;
+            $leadHistory->description = "Lead Created";
+            $leadHistory->created_at = date("Y-m-d H:i:s");
+            $leadHistory->save();
 
             return response()->json(['status' => true, 'message' => trans('label.lead_insert_success_msg')], $this->successStatus);
         } catch (Exception $ex) {
