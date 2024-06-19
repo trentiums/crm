@@ -25,7 +25,7 @@ class ProductServiceApiController extends Controller
      * @api {get} /api/v1/product-services-list Product Services List
      * @apiSampleRequest off
      * @apiName Product Services List
-     * @apiGroup Product/Services
+     * @apiGroup Product And Services
      * @apiVersion 1.0.0
      *
      * @apiDescription <span class="type type__post">Product Services List API</span>
@@ -110,7 +110,7 @@ class ProductServiceApiController extends Controller
      * @api {post} /api/v1/save-product-services Save Product Services
      * @apiSampleRequest off
      * @apiName Save Product Services
-     * @apiGroup Product/Services
+     * @apiGroup Product And Services
      * @apiVersion 1.0.0
      *
      * @apiDescription <span class="type type__post">Save Product Services API</span>
@@ -228,7 +228,7 @@ class ProductServiceApiController extends Controller
      * @api {get} /api/v1/details-product-services Product Services Details
      * @apiSampleRequest off
      * @apiName Product Services Details
-     * @apiGroup Product/Services
+     * @apiGroup Product And Services
      * @apiVersion 1.0.0
      *
      * @apiDescription <span class="type type__post">Product Services Details API</span>
@@ -326,7 +326,7 @@ class ProductServiceApiController extends Controller
      * @api {post} /api/v1/update-product-services Update Product Services
      * @apiSampleRequest off
      * @apiName Update Product Services
-     * @apiGroup Product/Services
+     * @apiGroup Product And Services
      * @apiVersion 1.0.0
      *
      * @apiDescription <span class="type type__post">Update Product Services API</span>
@@ -472,7 +472,7 @@ class ProductServiceApiController extends Controller
      * @api {post} /api/v1/delete-product-services Delete Product Services
      * @apiSampleRequest off
      * @apiName Delete Product Services
-     * @apiGroup Product/Services
+     * @apiGroup Product And Services
      * @apiVersion 1.0.0
      *
      * @apiDescription <span class="type type__post">Delete Product Services API</span>
