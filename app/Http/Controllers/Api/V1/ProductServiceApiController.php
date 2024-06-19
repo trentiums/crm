@@ -54,7 +54,7 @@ class ProductServiceApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/product-services-list
+     *       curl -i https://crm.trentiums.com/api/v1/product-services-list
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -151,7 +151,7 @@ class ProductServiceApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/save-product-services
+     *       curl -i https://crm.trentiums.com/api/v1/save-product-services
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -261,7 +261,7 @@ class ProductServiceApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/details-product-services
+     *       curl -i https://crm.trentiums.com/api/v1/details-product-services
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -376,7 +376,7 @@ class ProductServiceApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/update-product-services
+     *       curl -i https://crm.trentiums.com/api/v1/update-product-services
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -505,7 +505,7 @@ class ProductServiceApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/delete-product-services
+     *       curl -i https://crm.trentiums.com/api/v1/delete-product-services
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK

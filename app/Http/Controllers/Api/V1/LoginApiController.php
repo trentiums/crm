@@ -62,7 +62,7 @@ class LoginApiController extends Controller
      *      }
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/login
+     *       curl -i https://crm.trentiums.com/api/v1/login
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK

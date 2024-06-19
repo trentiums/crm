@@ -108,7 +108,7 @@ class LeadApiController extends Controller
      * @apiSuccess {Array}    data                                  Lead List
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/lead-list
+     *       curl -i https://crm.trentiums.com/api/v1/lead-list
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -117,10 +117,10 @@ class LeadApiController extends Controller
      *          "data": {
      *              "current_page": 1,
      *              "data": [],
-     *              "first_page_url": "https://crm.torthelp.com/api/v1/lead-list?page=1",
+     *              "first_page_url": "https://crm.trentiums.com/api/v1/lead-list?page=1",
      *              "from": null,
      *              "last_page": 1,
-     *              "last_page_url": "https://crm.torthelp.com/api/v1/lead-list?page=1",
+     *              "last_page_url": "https://crm.trentiums.com/api/v1/lead-list?page=1",
      *              "links": [
      *                  {
      *                      "url": null,
@@ -128,7 +128,7 @@ class LeadApiController extends Controller
      *                      "active": false
      *                  },
      *                  {
-     *                      "url": "https://crm.torthelp.com/api/v1/lead-list?page=1",
+     *                      "url": "https://crm.trentiums.com/api/v1/lead-list?page=1",
      *                      "label": "1",
      *                      "active": true
      *                  },
@@ -139,7 +139,7 @@ class LeadApiController extends Controller
      *                  }
      *              ],
      *              "next_page_url": null,
-     *              "path": "https://crm.torthelp.com/api/v1/lead-list",
+     *              "path": "https://crm.trentiums.com/api/v1/lead-list",
      *              "per_page": 10,
      *              "prev_page_url": null,
      *              "to": null,
@@ -266,7 +266,73 @@ class LeadApiController extends Controller
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
-
+    /**
+     * @api {get} /api/v1/save-lead Save Lead
+     * @apiSampleRequest off
+     * @apiName Save Lead
+     * @apiGroup Lead
+     * @apiVersion 1.0.0
+     *
+     * @apiDescription <span class="type type__post">Save Lead API</span>
+     *
+     *   API request content-type [{"key":"Content-Type","value":"application/json"}]
+     *
+     *   Authorization is based on token shared while login
+     *
+     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     *
+     *   @apiHeaderExample {json} Header-Example:
+     *     {
+     *       "Authorization": "Bearer XXXXXXXXXX"
+     *     }
+     *
+     * @apiParam {string}   name    Name
+     *
+     *    Validate `start_date` is string
+     *
+     *    Validate `start_date` is valid date (YYY-MM-DD)
+     *
+     *    Validate `start_date` is not grater than `end_date`
+     *
+     * @apiParamExample {bodyJson} Request-Example:
+     *    {
+     *    "name": "Bhargav",
+     *    "email": "bhargav960143@gmail.com",
+     *    "phone": "9662062016",
+     *    "company_name": "Trentium",
+     *    "company_size": "30",
+     *    "company_website": "https://www.trentiums.com",
+     *    "lead_status_id": 1,
+     *    "lead_channel_id": 1,
+     *    "product_services":[1,2],
+     *    "lead_conversion_id": 1,
+     *    "budget": "1500 INR",
+     *    "time_line": "2 Hours",
+     *    "description": "Banner development",
+     *    "deal_amount": "1200",
+     *    "win_close_reason": "",
+     *    "deal_close_date": "2024-06-18"
+     *    }
+     *
+     * @apiSuccess {Boolean}   status                               Response successful or not
+     * @apiSuccess {Array}    data                                  Lead List
+     *
+     * @apiExample {curl} Example usage:
+     *       curl -i https://crm.trentiums.com/api/v1/save-lead
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+     *          "status": true,
+     *          "message": "Lead saved successfully."
+     *      }
+     *
+     *     HTTP/1.1 200 Bad Request
+     *     {
+     *          "status": false,
+     *          "message": "Something wen't wrong please try again"
+     *     }
+     */
     public function save_lead(Request $request){
         try {
             $userRequest = $request->all();

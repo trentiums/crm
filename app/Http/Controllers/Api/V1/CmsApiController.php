@@ -44,7 +44,7 @@ class CmsApiController extends Controller
      * @apiSuccess {Array}    data                                  Lead Channel List
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/lead-channel-list
+     *       curl -i https://crm.trentiums.com/api/v1/lead-channel-list
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -99,7 +99,7 @@ class CmsApiController extends Controller
      * @apiSuccess {Array}    data                                  Lead Status List
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/lead-status-list
+     *       curl -i https://crm.trentiums.com/api/v1/lead-status-list
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -154,7 +154,7 @@ class CmsApiController extends Controller
      * @apiSuccess {Array}    data                                  Lead Conversion List
      *
      * @apiExample {curl} Example usage:
-     *       curl -i https://crm.torthelp.com/api/v1/lead-conversion-list
+     *       curl -i https://crm.trentiums.com/api/v1/lead-conversion-list
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
