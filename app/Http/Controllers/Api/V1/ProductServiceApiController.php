@@ -96,7 +96,7 @@ class ProductServiceApiController extends Controller
 
             $leadConversion = ProductService::join('company_users', 'company_users.id', "=", "product_services.company_user_id")
                 ->where("company_users.user_id", "=", $user->id)
-                ->select(['product_services.name','product_services.description','product_services.id'])
+                ->select(['product_services.name', 'product_services.description', 'product_services.id'])
                 ->paginate(10);
 
             return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
@@ -206,15 +206,15 @@ class ProductServiceApiController extends Controller
 
             $check = ProductService::whereHas('companyUser', function ($query) use ($companyUser) {
                 $query->where('company_id', $companyUser->company_id);
-            }) ->where('name', $userRequest['name'])->first();
+            })->where('name', $userRequest['name'])->first();
 
-            if(!empty($check)){
+            if (!empty($check)) {
                 Auditable::log_audit_data('ProductServiceApiController@save_product_services already exists', null, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.product_service_already_exist_error_message')], $this->successStatus);
             }
 
             $productService = ProductService::create($userRequest);
-            if($request->file('documents')) {
+            if ($request->file('documents')) {
                 $productService->addMediaFromRequest('documents')->toMediaCollection('documents');
             }
             return response()->json(['status' => true, 'message' => trans('label.product_saved_success_message')], $this->successStatus);
@@ -244,7 +244,7 @@ class ProductServiceApiController extends Controller
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
      *
-      * @apiParam {integer}   product_service_id    Product Service Id
+     * @apiParam {integer}   product_service_id    Product Service Id
      *
      *    Validate `product_service_id` is required
      *
@@ -313,7 +313,7 @@ class ProductServiceApiController extends Controller
 
             $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
                 $query->where('company_id', $getCompany->company_id);
-            }) ->where('id', $userRequest['product_service_id'])->first();
+            })->where('id', $userRequest['product_service_id'])->first();
 
             return response()->json(['status' => true, 'data' => $productService], $this->successStatus);
         } catch (Exception $ex) {
@@ -322,7 +322,7 @@ class ProductServiceApiController extends Controller
         }
     }
 
-     /**
+    /**
      * @api {post} /api/v1/update-product-services Update Product Services
      * @apiSampleRequest off
      * @apiName Update Product Services
@@ -440,37 +440,35 @@ class ProductServiceApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
+            $check = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
                 $query->where('company_id', $getCompany->company_id);
-            }) ->where('id', $userRequest['product_service_id'])->first();
+            })->where('name', $userRequest['name'])->whereNot('id', $userRequest['product_service_id'])->first();
 
-            if($productService){
-                $productService->update($request->all());
-
-                if ($request->input('documents', false)) {
-                    if (!$productService->documents || $request->input('documents') !== $productService->documents->file_name) {
-                        if ($productService->documents) {
-                            $productService->documents->delete();
-                        }
-                        $productService->addMedia(storage_path('tmp/uploads/' . basename($request->input('documents'))))->toMediaCollection('documents');
-                    }
-                } elseif ($productService->documents) {
-                    $productService->documents->delete();
-                }
-
-                return response()->json(['status' => true, 'message' => trans('label.product_update_success_message')], $this->successStatus);
-            } else {
-                Auditable::log_audit_data('ProductServiceApiController@details_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
-                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            if (!empty($check)) {
+                Auditable::log_audit_data('ProductServiceApiController@save_product_services already exists', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.product_service_already_exist_error_message')], $this->successStatus);
             }
 
+            $productService = ProductService::find($userRequest['product_service_id']);
+            $productService->update($request->all());
+
+            if ($request->file('documents')) {
+                if ($productService->documents) {
+                    $productService->documents->delete();
+                }
+                $productService->addMediaFromRequest('documents')->toMediaCollection('documents');
+            } elseif ($productService->documents) {
+                $productService->documents->delete();
+            }
+
+            return response()->json(['status' => true, 'message' => trans('label.product_update_success_message')], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('ProductServiceApiController@save_product_services Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
 
-     /**
+    /**
      * @api {post} /api/v1/delete-product-services Delete Product Services
      * @apiSampleRequest off
      * @apiName Delete Product Services
@@ -553,9 +551,10 @@ class ProductServiceApiController extends Controller
 
             $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
                 $query->where('company_id', $getCompany->company_id);
-            }) ->where('id', $userRequest['product_service_id'])->first();
+            })->where('id', $userRequest['product_service_id'])->first();
 
-            if($productService){
+            if ($productService) {
+                $productService->documents->delete();
                 $productService->delete();
                 return response()->json(['status' => true, 'message' => trans('label.product_delete_success_message')], $this->successStatus);
             } else {
