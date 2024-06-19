@@ -40,5 +40,9 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
 
         // Leads
         Route::apiResource('leads', 'LeadsApiController');
+
+        // Company User
+        Route::get('company-user-list', 'CompanyUserApiController@company_user_list');
+        Route::post('save-company-user', 'CompanyUserApiController@save_company_user');
     });
 });

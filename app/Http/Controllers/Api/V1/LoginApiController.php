@@ -32,9 +32,9 @@ class LoginApiController extends Controller
      *
      *   API request content-type [{"key":"Content-Type","value":"application/json"}]
      *
-     * @apiParam {String}     [email]       Email
+     * @apiParam {String}     email       Email
      *
-     *   Validate `email` field is optional.
+     *   Validate `email` field is required.
      *
      *   Validate `email` Length Minimum 2 characters.
      *
@@ -42,9 +42,9 @@ class LoginApiController extends Controller
      *
      *   Validate `email` is exists or not
      *
-     * @apiParam {String}     [password]        Security Password for account login
+     * @apiParam {String}    password        Security Password for account login
      *
-     *   Validate `password` field is optional.
+     *   Validate `password` field is required.
      *
      *   Validate `password` is string
      *
@@ -95,7 +95,8 @@ class LoginApiController extends Controller
             $fields['password'] = [
                 'required',
                 'string',
-                'min:4',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
             ];
             $fields['email'] = [
                 'required',
