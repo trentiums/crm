@@ -96,6 +96,7 @@ class ProductServiceApiController extends Controller
 
             $leadConversion = ProductService::join('company_users', 'company_users.id', "=", "product_services.company_user_id")
                 ->where("company_users.user_id", "=", $user->id)
+                ->select(['product_services.name','product_services.description','product_services.id'])
                 ->paginate(10);
 
             return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
@@ -202,12 +203,20 @@ class ProductServiceApiController extends Controller
 
             $companyUser = CompanyUser::where('user_id', "=", $user->id)->first();
             $userRequest['company_user_id'] = $companyUser->id;
-            $productService = ProductService::create($userRequest);
 
-            if ($request->input('documents', false)) {
-                $productService->addMedia(storage_path('tmp/uploads/' . basename($request->input('documents'))))->toMediaCollection('documents');
+            $check = ProductService::whereHas('companyUser', function ($query) use ($companyUser) {
+                $query->where('company_id', $companyUser->company_id);
+            }) ->where('name', $userRequest['name'])->first();
+
+            if(!empty($check)){
+                Auditable::log_audit_data('ProductServiceApiController@save_product_services already exists', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.product_service_already_exist_error_message')], $this->successStatus);
             }
 
+            $productService = ProductService::create($userRequest);
+            if($request->file('documents')) {
+                $productService->addMediaFromRequest('documents')->toMediaCollection('documents');
+            }
             return response()->json(['status' => true, 'message' => trans('label.product_saved_success_message')], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('ProductServiceApiController@save_product_services Exception', null, config('settings.log_type')[0], $ex->getMessage());

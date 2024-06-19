@@ -59,4 +59,5 @@ return [
     'win_close_reason_string_error_msg'          => 'Invalid win/close reason, please try again.',
     'deal_close_date_string_error_msg'           => 'Invalid deal close sate, please try again.',
     'lead_insert_success_msg'                    => 'Lead saved successfully.',
+    'product_service_already_exist_error_message'  => 'Product/Service already exist with same name, please try again.',
 ];
