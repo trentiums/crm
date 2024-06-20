@@ -8,12 +8,19 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Lead extends Model
+class Lead extends Model implements HasMedia
 {
-    use SoftDeletes, Auditable, HasFactory;
+    use SoftDeletes, Auditable, HasFactory, InteractsWithMedia;
 
     public $table = 'leads';
+
+    protected $appends = [
+        'documents',
+    ];
 
     protected $dates = [
         'deal_close_date',
@@ -56,6 +63,12 @@ class Lead extends Model
         "2" => "DESC",
     ];
 
+    const STATUS_UPDATE_TYPE = [
+        "1" => "status",
+        "2" => "channel",
+        "3" => "conversion",
+    ];
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
@@ -89,5 +102,16 @@ class Lead extends Model
     public function setDealCloseDateAttribute($value)
     {
         $this->attributes['deal_close_date'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
+    }
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')->fit('crop', 50, 50);
+        $this->addMediaConversion('preview')->fit('crop', 120, 120);
+    }
+
+    public function getDocumentsAttribute()
+    {
+        return $this->getMedia('documents')->last();
     }
 }
