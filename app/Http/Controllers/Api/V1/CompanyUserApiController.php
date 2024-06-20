@@ -414,7 +414,7 @@ class CompanyUserApiController extends Controller
                 'required',
                 'min:2',
                 'email:rfc,dns',
-                'unique:users,email,' . $companyUser->user->id,
+                $companyUser ? 'unique:users,email,' . $companyUser->user->id : 'unique:users,email',
             ];
             $fields['name'] = [
                 'required',
