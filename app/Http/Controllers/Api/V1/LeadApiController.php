@@ -118,7 +118,123 @@ class LeadApiController extends Controller
      *          "status": true,
      *          "data": {
      *              "current_page": 1,
-     *              "data": [],
+     *              "data": [
+     *               {
+     *                  "id": 1,
+     *                  "company_user_id": 1,
+     *                  "name": "Bhargav123",
+     *                  "email": "bhargav960143@gmail.com",
+     *                  "phone": null,
+     *                  "company_name": "Trentium",
+     *                  "company_size": "30",
+     *                  "company_website": "https://www.trentiums.com",
+     *                  "budget": "1500 INR",
+     *                  "time_line": "2 Hours",
+     *                  "description": "Banner development",
+     *                  "deal_amount": "1200.00",
+     *                  "win_close_reason": null,
+     *                  "deal_close_date": "2024-06-18",
+     *                  "created_at": "2024-06-19 07:18:14",
+     *                  "updated_at": "2024-06-19 13:38:47",
+     *                  "deleted_at": null,
+     *                  "lead_status_id": 1,
+     *                  "lead_channel_id": 1,
+     *                  "lead_conversion_id": 1,
+     *                  "country_id": null,
+     *                  "documents": {
+     *                      "id": 20,
+     *                      "model_type": "App\\Models\\Lead",
+     *                      "model_id": 1,
+     *                      "uuid": "8f17bd69-e87a-4da7-9b38-e3e60ad78ae6",
+     *                      "collection_name": "documents",
+     *                      "name": "user-form",
+     *                      "file_name": "user-form.png",
+     *                      "mime_type": "image/png",
+     *                      "disk": "public",
+     *                      "conversions_disk": "public",
+     *                      "size": 9013,
+     *                      "manipulations": [],
+     *                      "custom_properties": [],
+     *                      "generated_conversions": {
+     *                          "thumb": true,
+     *                          "preview": true
+     *                      },
+     *                      "responsive_images": [],
+     *                      "order_column": 1,
+     *                      "created_at": "2024-06-19T13:38:47.000000Z",
+     *                      "updated_at": "2024-06-19T13:38:47.000000Z",
+     *                      "original_url": "http://127.0.0.1:8000/storage/20/user-form.png",
+     *                      "preview_url": "http://127.0.0.1:8000/storage/20/conversions/user-form-preview.jpg"
+     *                  },
+     *                  "lead_status": {
+     *                      "id": 1,
+     *                      "name": "New",
+     *                      "created_at": "2024-06-04 10:04:37",
+     *                      "updated_at": "2024-06-04 10:04:37",
+     *                      "deleted_at": null
+     *                  },
+     *                  "lead_channel": {
+     *                      "id": 1,
+     *                      "name": "Website Forms",
+     *                      "created_at": "2024-06-04 10:02:53",
+     *                      "updated_at": "2024-06-04 10:02:53",
+     *                      "deleted_at": null
+     *                  },
+     *                  "product_services": [],
+     *                  "lead_conversion": {
+     *                      "id": 1,
+     *                      "name": "Proposal Stage",
+     *                      "created_at": "2024-06-04 10:05:39",
+     *                      "updated_at": "2024-06-04 10:05:39",
+     *                      "deleted_at": null
+     *                  },
+     *                  "company_user": {
+     *                      "id": 1,
+     *                      "created_at": "2024-06-04 15:47:00",
+     *                      "updated_at": null,
+     *                      "deleted_at": null,
+     *                      "company_id": 1,
+     *                      "user_id": 2,
+     *                      "user": {
+     *                          "id": 2,
+     *                          "name": "Trentium Solution Private Limited",
+     *                          "email": "info@trentiums.com",
+     *                          "email_verified_at": null,
+     *                          "user_role": 2,
+     *                          "created_at": "2024-06-04 10:07:02",
+     *                          "updated_at": "2024-06-04 10:07:02",
+     *                          "deleted_at": null
+     *                      }
+     *                  },
+     *                  "media": [
+     *                      {
+     *                          "id": 20,
+     *                          "model_type": "App\\Models\\Lead",
+     *                          "model_id": 1,
+     *                          "uuid": "8f17bd69-e87a-4da7-9b38-e3e60ad78ae6",
+     *                          "collection_name": "documents",
+     *                          "name": "user-form",
+     *                          "file_name": "user-form.png",
+     *                          "mime_type": "image/png",
+     *                          "disk": "public",
+     *                          "conversions_disk": "public",
+     *                          "size": 9013,
+     *                          "manipulations": [],
+     *                          "custom_properties": [],
+     *                          "generated_conversions": {
+     *                              "thumb": true,
+     *                              "preview": true
+     *                          },
+     *                          "responsive_images": [],
+     *                          "order_column": 1,
+     *                          "created_at": "2024-06-19T13:38:47.000000Z",
+     *                          "updated_at": "2024-06-19T13:38:47.000000Z",
+     *                          "original_url": "http://127.0.0.1:8000/storage/20/user-form.png",
+     *                          "preview_url": "http://127.0.0.1:8000/storage/20/conversions/user-form-preview.jpg"
+     *                      }
+     *                  ]
+     *                 }
+     *               ],
      *              "first_page_url": "https://crm.trentiums.com/api/v1/lead-list?page=1",
      *              "from": null,
      *              "last_page": 1,
@@ -223,10 +339,11 @@ class LeadApiController extends Controller
                 return $validationResponse;
             }
 
-            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion'])
-                ->join('company_users', 'company_users.id', "=", "leads.company_user_id")
-                ->join('users', 'users.id', "=", "company_users.user_id")
-                ->where("company_users.user_id", "=", $user->id);
+            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user' => function ($query) {
+                $query->with(['user']);
+            }])->whereHas('company_user', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
                 $leadConversion->whereDate('leads.created_at', ">=", $userRequest['start_date']);
@@ -301,7 +418,7 @@ class LeadApiController extends Controller
      *
      *    Validate `email` is valid email
      *
-     *  @apiParam {String}     country_code_alpha     Country Code Alpha
+     *  @apiParam {String}     [country_code_alpha]     Country Code Alpha
      *
      *    Validate `country_code_alpha` is required with phone number
      *
@@ -665,7 +782,7 @@ class LeadApiController extends Controller
      *
      *    Validate `email` is valid email
      *
-     *  @apiParam {String}     country_code_alpha     Country Code Alpha
+     *  @apiParam {String}     [country_code_alpha]     Country Code Alpha
      *
      *    Validate `country_code_alpha` is required with phone number
      *
