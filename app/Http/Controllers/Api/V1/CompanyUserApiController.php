@@ -456,35 +456,35 @@ class CompanyUserApiController extends Controller
                         return response()->json(['status' => true, 'message' => trans('label.staff_user_updated_success_msg')], $this->successStatus);
                     } else {
                         DB::rollback();
-                        Auditable::log_audit_data('CompanyUserApiController@company_user_list Cannot update company user', null, config('settings.log_type')[1], $userRequest);
+                        Auditable::log_audit_data('CompanyUserApiController@update_company_user Cannot update company user', null, config('settings.log_type')[1], $userRequest);
                         return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
                     }
                 } else {
                     DB::rollback();
-                    Auditable::log_audit_data('CompanyUserApiController@company_user_list Company not found', null, config('settings.log_type')[1], $userRequest);
+                    Auditable::log_audit_data('CompanyUserApiController@update_company_user Company not found', null, config('settings.log_type')[1], $userRequest);
                     return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
                 }
             } else {
                 DB::rollback();
-                Auditable::log_audit_data('CompanyUserApiController@save_company_user staff can try to check api', null, config('settings.log_type')[1], $userRequest);
+                Auditable::log_audit_data('CompanyUserApiController@update_company_user staff can try to check api', null, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
             dd($ex);
             DB::rollback();
-            Auditable::log_audit_data('CompanyUserApiController@save_company_user Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            Auditable::log_audit_data('CompanyUserApiController@update_company_user Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
 
     /**
-     * @api {post} /api/v1/update-company-user Update Company User
+     * @api {post} /api/v1/delete-company-user Delete Company User
      * @apiSampleRequest off
-     * @apiName Update Company User
+     * @apiName Delete Company User
      * @apiGroup Company
      * @apiVersion 1.0.0
      *
-     * @apiDescription <span class="type type__post">Update Company User API</span>
+     * @apiDescription <span class="type type__post">Delete Company User API</span>
      *
      *   API request content-type [{"key":"Content-Type","value":"application/json"}]
      *
@@ -562,22 +562,22 @@ class CompanyUserApiController extends Controller
                         return response()->json(['status' => true, 'message' => trans('label.staff_user_deleted_success_msg')], $this->successStatus);
                     } else {
                         DB::rollback();
-                        Auditable::log_audit_data('CompanyUserApiController@company_user_list Cannot delete company user', null, config('settings.log_type')[1], $userRequest);
+                        Auditable::log_audit_data('CompanyUserApiController@delete_company_user Cannot delete company user', null, config('settings.log_type')[1], $userRequest);
                         return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
                     }
                 } else {
                     DB::rollback();
-                    Auditable::log_audit_data('CompanyUserApiController@company_user_list Company not found', null, config('settings.log_type')[1], $userRequest);
+                    Auditable::log_audit_data('CompanyUserApiController@delete_company_user Company not found', null, config('settings.log_type')[1], $userRequest);
                     return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
                 }
             } else {
                 DB::rollback();
-                Auditable::log_audit_data('CompanyUserApiController@save_company_user staff can try to check api', null, config('settings.log_type')[1], $userRequest);
+                Auditable::log_audit_data('CompanyUserApiController@delete_company_user staff can try to check api', null, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
             DB::rollback();
-            Auditable::log_audit_data('CompanyUserApiController@save_company_user Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            Auditable::log_audit_data('CompanyUserApiController@delete_company_user Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
