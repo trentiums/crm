@@ -470,7 +470,6 @@ class CompanyUserApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
-            dd($ex);
             DB::rollback();
             Auditable::log_audit_data('CompanyUserApiController@update_company_user Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);

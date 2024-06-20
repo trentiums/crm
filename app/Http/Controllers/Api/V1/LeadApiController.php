@@ -1180,20 +1180,20 @@ class LeadApiController extends Controller
                 'type' => [
                     'required',
                     'integer',
-                    'in:' . implode(',', array_keys(Lead::STATUS_TYPE))
+                    'in:' . implode(',', array_keys(Lead::STATUS_UPDATE_TYPE))
                 ],
                 'lead_status_id' => [
-                    'required_if:type,' . array_flip(Lead::STATUS_TYPE)['status'],
+                    'required_if:type,' . array_flip(Lead::STATUS_UPDATE_TYPE)['status'],
                     'exists:lead_statuses,id,deleted_at,NULL',
                     'integer',
                 ],
                 'lead_channel_id' => [
-                    'required_if:type,' . array_flip(Lead::STATUS_TYPE)['channel'],
+                    'required_if:type,' . array_flip(Lead::STATUS_UPDATE_TYPE)['channel'],
                     'exists:lead_channels,id,deleted_at,NULL',
                     'integer',
                 ],
                 'lead_conversion_id' => [
-                    'required_if:type,' . array_flip(Lead::STATUS_TYPE)['conversion'],
+                    'required_if:type,' . array_flip(Lead::STATUS_UPDATE_TYPE)['conversion'],
                     'exists:lead_conversions,id,deleted_at,NULL',
                     'integer',
                 ],
@@ -1228,15 +1228,15 @@ class LeadApiController extends Controller
 
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
-                if ($userRequest['type'] == array_flip(Lead::STATUS_TYPE)['status']) {
+                if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
                     $lead->update([
                         'lead_status_id' => $userRequest['lead_status_id']
                     ]);
-                } else if ($userRequest['type'] == array_flip(Lead::STATUS_TYPE)['channel']) {
+                } else if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['channel']) {
                     $lead->update([
                         'lead_channel_id' => $userRequest['lead_channel_id']
                     ]);
-                } else if ($userRequest['type'] == array_flip(Lead::STATUS_TYPE)['conversion']) {
+                } else if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['conversion']) {
                     $lead->update([
                         'lead_conversion_id' => $userRequest['lead_conversion_id']
                     ]);

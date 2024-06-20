@@ -63,7 +63,7 @@ class Lead extends Model implements HasMedia
         "2" => "DESC",
     ];
 
-    const STATUS_TYPE = [
+    const STATUS_UPDATE_TYPE = [
         "1" => "status",
         "2" => "channel",
         "3" => "conversion",
