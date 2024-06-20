@@ -709,14 +709,6 @@ class LeadApiController extends Controller
      *
      *    Validate `lead_channel_id` is exists or not
      *
-     *  @apiParam {Integer}     lead_channel_id     Lead Channel Id
-     *
-     *    Validate `lead_channel_id` is required
-     *
-     *    Validate `lead_channel_id` is integer
-     *
-     *    Validate `lead_channel_id` is exists or not
-     *
      *   @apiParam {Array}     product_services      Product Services
      *
      *    Validate `product_services` is required
@@ -763,7 +755,7 @@ class LeadApiController extends Controller
      * @apiParam {file}   [documents]    Document
      *
      *    Validate `documents` is file
-     * 
+     *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
      *    "name": "Bhargav",
