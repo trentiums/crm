@@ -47,5 +47,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         // Company User
         Route::get('company-user-list', 'CompanyUserApiController@company_user_list');
         Route::post('save-company-user', 'CompanyUserApiController@save_company_user');
+        Route::post('update-company-user', 'CompanyUserApiController@update_company_user');
+        Route::post('delete-company-user', 'CompanyUserApiController@delete_company_user');
     });
 });

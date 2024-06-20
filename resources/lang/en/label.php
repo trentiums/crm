@@ -77,4 +77,9 @@ return [
     'product_service_already_exist_error_message'     => 'Product/Service already exist with same name, please try again.',
     'unable_to_create_user_error_msg'                 => 'Unable to create new user, please try again.',
     'staff_user_created_success_msg'                  => 'Staff member saved successfully.',
+    'staff_user_updated_success_msg'                  => 'Staff member updated successfully.',
+    'staff_user_deleted_success_msg'                  => 'Staff member deleted successfully.',
+    'company_user_id_required_error_msg'              => 'Invalid Company User Id',
+    'company_user_id_integer_error_msg'               => 'Invalid Company User Id',
+    'company_user_id_exists_error_msg'                => 'Invalid Company User Id',
 ];
