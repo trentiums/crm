@@ -339,9 +339,8 @@ class LeadApiController extends Controller
                 return $validationResponse;
             }
 
-            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user' => function ($query) {
-                $query->with(['user']);
-            }])->whereHas('company_user', function($query) use ($user) {
+            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])
+            ->whereHas('company_user', function($query) use ($user) {
                 $query->where('user_id', $user->id);
             });
 
