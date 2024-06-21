@@ -22,4 +22,8 @@ return [
         'icon' => "jpg,jpeg,png",
         'video' => "mp4,avi,mov",
     ),
+    'cache_data_limit' => array(
+        'seconds' => 86400, // 1 Day seconds
+        'days' => 365,  // 1 Year days
+    ),
 ];
