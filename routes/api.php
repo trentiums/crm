@@ -54,5 +54,8 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::get('lead-stage-count', 'DashboardApiController@lead_stage_count');
         Route::get('dashboard-lead-list', 'DashboardApiController@dashboard_lead_list');
 
+        //Country List
+        Route::get('country-list', 'CountryApiController@country_list');
+
     });
 });
