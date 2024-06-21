@@ -10,23 +10,12 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Traits\Validation;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class DashboardApiController extends Controller
 {
     use Validation;
     public $successStatus = 200;
-
-    private function getConversionCount($user, $stage)
-    {
-        $query = LeadConversionCountView::whereHas('lead_conversion', function ($query) use ($stage) {
-            $query->where('name', $stage);
-        });
-
-        $query->whereHas('company_user', function ($query) use ($user) {
-            $query->where('company_id', $user->companyUser->company_id);
-        });
-        return $query->sum('conversion_count');
-    }
 
     /**
      * @api {get} /api/v1/lead-stage-count Lead Stage Count
@@ -77,23 +66,29 @@ class DashboardApiController extends Controller
     {
         try {
             $user = $request->user();
-            $stages = ['Initial', 'Proposal Stage', 'Negotiation', 'Closed-Won', 'Closed-Lost'];
+            $userRequest = $request->all();
 
-            $response = [];
-
-            foreach ($stages as $stage) {
-                $stageKey = strtolower(str_replace('-', '_', $stage)) . '_count';
-                $response[$stageKey] = $this->getConversionCount($user, $stage);
+            if (isset($user->companyUser) && !empty($user->companyUser)) {
+                $response = Lead::select('leads.lead_conversion_id', 'lead_conversions.name', DB::raw('COUNT(lead_conversions.id) as lead_count'))
+                    ->join('company_users', function ($join) use ($user) {
+                        $join->on('leads.company_user_id', '=', 'company_users.id')
+                            ->where('company_users.company_id', '=', $user->companyUser->company_id);
+                    })
+                    ->join('lead_conversions', 'leads.lead_conversion_id', '=', 'lead_conversions.id')
+                    ->groupBy('lead_conversions.id', 'leads.lead_conversion_id')
+                    ->get();
+                return response()->json(['status' => true, 'data' => $response], $this->successStatus);
+            } else {
+                Auditable::log_audit_data('DashboardApiController@lead_stage_count Company not found', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
-
-            return response()->json(['status' => true, 'data' => $response], $this->successStatus);
         } catch (Exception $ex) {
-            Auditable::log_audit_data('CompanyUserApiController@company_user_list Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            Auditable::log_audit_data('DashboardApiController@lead_stage_count Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
 
-     /**
+    /**
      * @api {get} /api/v1/dashboard-lead-list Dashboard Lead List
      * @apiSampleRequest off
      * @apiName Dashboard Lead List
@@ -261,18 +256,24 @@ class DashboardApiController extends Controller
     {
         try {
             $user = $request->user();
+            $userRequest = $request->all();
 
-            $leadList = Lead::select('name', 'phone', 'email', 'created_at')->whereHas('company_user', function ($query) use ($user) {
-                $query->where('company_id', $user->companyUser->company_id);
-            })->whereHas('lead_status', function ($query) {
-                $query->where('name', 'NEW');
-            })->whereHas('lead_conversion', function ($query) {
-                $query->where('name', 'Initial');
-            })->paginate(10);
+            if (isset($user->companyUser) && !empty($user->companyUser)) {
+                $leadList = Lead::select('name', 'phone', 'email', 'created_at')->whereHas('company_user', function ($query) use ($user) {
+                    $query->where('company_id', $user->companyUser->company_id);
+                })->whereHas('lead_status', function ($query) {
+                    $query->where('name', 'NEW');
+                })->whereHas('lead_conversion', function ($query) {
+                    $query->where('name', 'Initial');
+                })->paginate(10);
 
-            return response()->json(['status' => true, 'data' => $leadList], $this->successStatus);
+                return response()->json(['status' => true, 'data' => $leadList], $this->successStatus);
+            } else {
+                Auditable::log_audit_data('DashboardApiController@dashboard_lead_list Company not found', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
         } catch (Exception $ex) {
-            Auditable::log_audit_data('CompanyUserApiController@company_user_list Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            Auditable::log_audit_data('DashboardApiController@dashboard_lead_list Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
