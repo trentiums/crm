@@ -79,6 +79,22 @@
                             {{ $auditLog->created_at }}
                         </td>
                     </tr>
+                    <tr>
+                        <th>
+                            {{ trans('cruds.auditLog.fields.api_request') }}
+                        </th>
+                        <td>
+                            {{ $auditLog->api_request }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {{ trans('cruds.auditLog.fields.api_response') }}
+                        </th>
+                        <td>
+                            {{ $auditLog->api_response }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div class="form-group">
