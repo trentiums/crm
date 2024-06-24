@@ -1114,16 +1114,9 @@ class LeadApiController extends Controller
                 }
 
                 if ($request->file('documents')) {
-                    if ($lead->documents) {
-                        foreach ($lead->documents as $document) {
-                            $document->delete();
-                        }
-                    }
                     foreach ($request->file('documents') as $file) {
                         $lead->addMedia($file)->toMediaCollection('documents');
                     }
-                } elseif ($lead->documents) {
-                    $lead->documents->delete();
                 }
 
                 return response()->json(['status' => true, 'message' => trans('label.lead_update_success_msg')], $this->successStatus);
@@ -1132,7 +1125,6 @@ class LeadApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
-            dd($ex);
             Auditable::log_audit_data('LeadApiController@update_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
