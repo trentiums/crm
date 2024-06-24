@@ -82,4 +82,5 @@ return [
     'company_user_id_required_error_msg'              => 'Invalid Company User Id',
     'company_user_id_integer_error_msg'               => 'Invalid Company User Id',
     'company_user_id_exists_error_msg'                => 'Invalid Company User Id',
+    'documents_array_error_msg'                       => 'Invalid documents'
 ];

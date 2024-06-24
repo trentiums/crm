@@ -117,6 +117,6 @@ class Lead extends Model implements HasMedia
 
     public function getDocumentsAttribute()
     {
-        return $this->getMedia('documents')->last();
+        return $this->getMedia('documents');
     }
 }
