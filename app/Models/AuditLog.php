@@ -16,6 +16,8 @@ class AuditLog extends Model
         'user_id',
         'properties',
         'host',
+        'api_request',
+        'api_response'
     ];
 
     protected $casts = [
