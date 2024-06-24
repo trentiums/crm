@@ -340,9 +340,9 @@ class LeadApiController extends Controller
             }
 
             $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])
-            ->whereHas('company_user', function($query) use ($user) {
-                $query->where('user_id', $user->id);
-            });
+                ->whereHas('company_user', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
                 $leadConversion->whereDate('leads.created_at', ">=", $userRequest['start_date']);
@@ -504,9 +504,15 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
-     * @apiParam {file}   [documents]    Document
+     * @apiParam {array}   [documents]    Document
      *
-     *    Validate `documents` is file
+     *    Validate `documents` is array
+     *
+     *    Validate `documents` are file
+     *
+     *    Validate `documents` are less than equal to 5 MB
+     *
+     *    Validate `documents` file support image/jpg,image/jpeg,image/png,video/mp4,video/avi,application/octet-stream,video/quicktime mimetype
      *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
@@ -636,6 +642,10 @@ class LeadApiController extends Controller
                 ],
                 'documents' => [
                     'nullable',
+                    'array'
+                ],
+                'documents.*' => [
+                    'required',
                     'file',
                     'max:' . config('settings.file_size.general'),
                     'mimes:' . config('settings.supported_file_extension.general'),
@@ -677,7 +687,8 @@ class LeadApiController extends Controller
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
-                'deal_close_date.string' => trans('label.deal_close_date_string_error_msg')
+                'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
+                'documents.array' => trans('label.documents_array_error_msg')
             ]);
 
             $validationResponse = $this->check_validation($fields, $error, 'Save Lead');
@@ -722,7 +733,9 @@ class LeadApiController extends Controller
             }
 
             if ($request->file('documents')) {
-                $lead->addMediaFromRequest('documents')->toMediaCollection('documents');
+                foreach ($request->file('documents') as $file) {
+                    $lead->addMedia($file)->toMediaCollection('documents');
+                }
             }
 
             $leadHistory = new LeadHistory();
@@ -868,9 +881,17 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
-     * @apiParam {file}   [documents]    Document
+     * @apiParam {array}   [documents]    Document
      *
-     *    Validate `documents` is file
+     *    Validate `documents` is file* @apiParam {file}   [documents]    Document
+     *
+     *    Validate `documents` is array
+     *
+     *    Validate `documents` are file
+     *
+     *    Validate `documents` are less than equal to 5 MB
+     *
+     *    Validate `documents` file support image/jpg,image/jpeg,image/png,video/mp4,video/avi,application/octet-stream,video/quicktime mimetype
      *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
@@ -1005,6 +1026,10 @@ class LeadApiController extends Controller
                 ],
                 'documents' => [
                     'nullable',
+                    'array'
+                ],
+                'documents.*' => [
+                    'required',
                     'file',
                     'max:' . config('settings.file_size.general'),
                     'mimes:' . config('settings.supported_file_extension.general'),
@@ -1046,7 +1071,8 @@ class LeadApiController extends Controller
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
-                'deal_close_date.string' => trans('label.deal_close_date_string_error_msg')
+                'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
+                'documents.array' => trans('label.documents_array_error_msg')
             ]);
 
             $validationResponse = $this->check_validation($fields, $error, 'Update Lead');
@@ -1088,12 +1114,9 @@ class LeadApiController extends Controller
                 }
 
                 if ($request->file('documents')) {
-                    if ($lead->documents) {
-                        $lead->documents->delete();
+                    foreach ($request->file('documents') as $file) {
+                        $lead->addMedia($file)->toMediaCollection('documents');
                     }
-                    $lead->addMediaFromRequest('documents')->toMediaCollection('documents');
-                } elseif ($lead->documents) {
-                    $lead->documents->delete();
                 }
 
                 return response()->json(['status' => true, 'message' => trans('label.lead_update_success_msg')], $this->successStatus);
@@ -1364,7 +1387,6 @@ class LeadApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
-            dd($ex);
             Auditable::log_audit_data('LeadApiController@update_lead_status Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
