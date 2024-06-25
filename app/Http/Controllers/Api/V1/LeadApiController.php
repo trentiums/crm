@@ -1211,9 +1211,12 @@ class LeadApiController extends Controller
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
                 $lead->product_services()->delete();
-                foreach($lead->documents as $document){
-                    $document->delete();
-                }                $lead->delete();
+                if (!empty($lead->documents)) {
+                    foreach ($lead->documents as $document) {
+                        $document->delete();
+                    }
+                }
+                $lead->delete();
                 return response()->json(['status' => true, 'message' => trans('label.lead_delete_success_msg')], $this->successStatus);
             } else {
                 Auditable::log_audit_data('ProductServiceApiController@delete_lead Exception', $user, config('settings.log_type')[1], $userRequest);
