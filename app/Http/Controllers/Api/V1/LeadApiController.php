@@ -1082,6 +1082,10 @@ class LeadApiController extends Controller
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
+            if ($request->country_code_alpha) {
+                $country = Country::where('country_code_alpha', $request->country_code_alpha)->first();
+            }
+            
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
                 $lead->name = $userRequest['name'];
