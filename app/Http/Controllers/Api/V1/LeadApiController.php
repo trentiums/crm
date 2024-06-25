@@ -605,7 +605,7 @@ class LeadApiController extends Controller
                 ],
                 'product_services.*' => [
                     'integer',
-                    'exists:product_services,id'
+                    'exists:product_services,id,deleted_at,NULL'
                 ],
                 'product_services' => [
                     'required',
@@ -989,7 +989,7 @@ class LeadApiController extends Controller
                 ],
                 'product_services.*' => [
                     'integer',
-                    'exists:product_services,id'
+                    'exists:product_services,id,deleted_at,NULL'
                 ],
                 'product_services' => [
                     'required',
