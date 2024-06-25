@@ -1211,7 +1211,11 @@ class LeadApiController extends Controller
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
                 $lead->product_services()->delete();
-                $lead->documents->delete();
+                if (!empty($lead->documents)) {
+                    foreach ($lead->documents as $document) {
+                        $document->delete();
+                    }
+                }
                 $lead->delete();
                 return response()->json(['status' => true, 'message' => trans('label.lead_delete_success_msg')], $this->successStatus);
             } else {
