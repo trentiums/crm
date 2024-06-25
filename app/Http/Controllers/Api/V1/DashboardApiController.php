@@ -75,7 +75,7 @@ class DashboardApiController extends Controller
                             ->where('company_users.company_id', '=', $user->companyUser->company_id);
                     })
                     ->join('lead_conversions', 'leads.lead_conversion_id', '=', 'lead_conversions.id')
-                    ->groupBy('lead_conversions.id', 'leads.lead_conversion_id')
+                    ->groupBy('lead_conversions.id', 'leads.lead_conversion_id','lead_conversions.name')
                     ->get();
                 return response()->json(['status' => true, 'data' => $response], $this->successStatus);
             } else {
@@ -259,7 +259,10 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $leadList = Lead::select('name', 'phone', 'email', 'created_at')->whereHas('company_user', function ($query) use ($user) {
+                $leadList = Lead::select('id','name', 'phone', 'email', 'created_at','country_id')->with(['country' => function($query) {
+                    $query->select('id', 'dialling_code');
+                }])
+                ->whereHas('company_user', function ($query) use ($user) {
                     $query->where('company_id', $user->companyUser->company_id);
                 })->whereHas('lead_status', function ($query) {
                     $query->where('name', 'NEW');

@@ -99,6 +99,11 @@ class Lead extends Model implements HasMedia
         return $this->belongsTo(CompanyUser::class, 'company_user_id');
     }
 
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
     public function getDealCloseDateAttribute($value)
     {
         return $value ? Carbon::parse($value)->format(config('panel.date_format')) : null;
