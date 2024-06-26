@@ -1085,7 +1085,7 @@ class LeadApiController extends Controller
             if ($request->country_code_alpha) {
                 $country = Country::where('country_code_alpha', $request->country_code_alpha)->first();
             }
-            
+
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
                 $lead->name = $userRequest['name'];
@@ -1107,7 +1107,7 @@ class LeadApiController extends Controller
                 $lead->save();
 
                 if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
-                    $lead->product_services()->delete();
+                    $lead->product_services()->detach();
                     $arrData = [];
                     foreach ($userRequest['product_services'] as $keyProduct => $valueProduct) {
                         $arrData[$keyProduct]['lead_id'] = $lead->id;
@@ -1214,7 +1214,7 @@ class LeadApiController extends Controller
 
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id) {
-                $lead->product_services()->delete();
+                $lead->product_services()->detach();
                 if (!empty($lead->documents)) {
                     foreach ($lead->documents as $document) {
                         $document->delete();
