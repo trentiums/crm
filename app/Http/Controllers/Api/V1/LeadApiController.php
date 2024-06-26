@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\Lead;
 use App\Models\LeadHistory;
 use App\Models\LeadProductService;
+use App\Models\Role;
 use App\Traits\Auditable;
 use Illuminate\Http\Request;
 use Exception;
@@ -341,7 +342,7 @@ class LeadApiController extends Controller
 
             $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])
                 ->whereHas('company_user', function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
+                    $query->where('company_id', $user->companyUser->company_id);
                 });
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
@@ -361,6 +362,12 @@ class LeadApiController extends Controller
                 $leadConversion->where('leads.lead_conversion_id', $userRequest['lead_conversion_id']);
             }
 
+            if (isset($userRequest['search']) && !empty($userRequest['search'])) {
+                $leadConversion->where('leads.name', 'LIKE', '%' . $userRequest['search'] . '%')
+                    ->orWhere('leads.email', 'LIKE', '%' . $userRequest['search'] . '%')
+                    ->orWhere('leads.phone', 'LIKE', '%' . $userRequest['search'] . '%');
+            }
+
             if (isset($userRequest['order_by']) && !empty($userRequest['order_by']) && isset($userRequest['sort_order']) && !empty($userRequest['sort_order'])) {
                 if ($userRequest['order_by'] == array_flip(Lead::ORDER_BY)['created_at']) {
                     $order_by = "leads.created_at";
@@ -371,7 +378,7 @@ class LeadApiController extends Controller
                 } else if ($userRequest['order_by'] == array_flip(Lead::ORDER_BY)['company_user_id']) {
                     $order_by = "users.name";
                 }
-                $leadConversion->orderBy($order_by, $userRequest['sort_order']);
+                $leadConversion->orderBy($order_by, Lead::ORDER[$userRequest['sort_order']]);
             }
 
             $leadConversion = $leadConversion->paginate(10);
@@ -702,50 +709,55 @@ class LeadApiController extends Controller
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
-            $lead = new Lead();
-            $lead->company_user_id = $companyUser->id;
-            $lead->name = $userRequest['name'];
-            $lead->phone = $userRequest['phone'] ?? null;
-            $lead->email = $userRequest['email'] ?? null;
-            $lead->company_name = $userRequest['company_name'] ?? null;
-            $lead->company_size = $userRequest['company_size'] ?? null;
-            $lead->company_website = $userRequest['company_website'] ?? null;
-            $lead->lead_status_id = $userRequest['lead_status_id'];
-            $lead->lead_channel_id = $userRequest['lead_channel_id'];
-            $lead->lead_conversion_id = $userRequest['lead_conversion_id'];
-            $lead->budget = $userRequest['budget'] ?? null;
-            $lead->time_line = $userRequest['time_line'] ?? null;
-            $lead->description = $userRequest['description'] ?? null;
-            $lead->deal_amount = $userRequest['deal_amount'] ?? null;
-            $lead->win_close_reason = $userRequest['win_close_reason'] ?? null;
-            $lead->deal_close_date = $userRequest['deal_close_date'] ?? null;
-            $lead->country_id = isset($country) ? $country->id : null;
-            $lead->save();
+            if ($companyUser) {
+                $lead = new Lead();
+                $lead->company_user_id = $companyUser->id;
+                $lead->name = $userRequest['name'];
+                $lead->phone = $userRequest['phone'] ?? null;
+                $lead->email = $userRequest['email'] ?? null;
+                $lead->company_name = $userRequest['company_name'] ?? null;
+                $lead->company_size = $userRequest['company_size'] ?? null;
+                $lead->company_website = $userRequest['company_website'] ?? null;
+                $lead->lead_status_id = $userRequest['lead_status_id'];
+                $lead->lead_channel_id = $userRequest['lead_channel_id'];
+                $lead->lead_conversion_id = $userRequest['lead_conversion_id'];
+                $lead->budget = $userRequest['budget'] ?? null;
+                $lead->time_line = $userRequest['time_line'] ?? null;
+                $lead->description = $userRequest['description'] ?? null;
+                $lead->deal_amount = $userRequest['deal_amount'] ?? null;
+                $lead->win_close_reason = $userRequest['win_close_reason'] ?? null;
+                $lead->deal_close_date = $userRequest['deal_close_date'] ?? null;
+                $lead->country_id = isset($country) ? $country->id : null;
+                $lead->save();
 
-            if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
-                $arrData = [];
-                foreach ($userRequest['product_services'] as $keyProduct => $valueProduct) {
-                    $arrData[$keyProduct]['lead_id'] = $lead->id;
-                    $arrData[$keyProduct]['product_service_id'] = $valueProduct;
+                if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
+                    $arrData = [];
+                    foreach ($userRequest['product_services'] as $keyProduct => $valueProduct) {
+                        $arrData[$keyProduct]['lead_id'] = $lead->id;
+                        $arrData[$keyProduct]['product_service_id'] = $valueProduct;
+                    }
+
+                    LeadProductService::insert($arrData);
                 }
 
-                LeadProductService::insert($arrData);
-            }
-
-            if ($request->file('documents')) {
-                foreach ($request->file('documents') as $file) {
-                    $lead->addMedia($file)->toMediaCollection('documents');
+                if ($request->file('documents')) {
+                    foreach ($request->file('documents') as $file) {
+                        $lead->addMedia($file)->toMediaCollection('documents');
+                    }
                 }
+
+                $leadHistory = new LeadHistory();
+                $leadHistory->lead_id = $lead->id;
+                $leadHistory->company_user_id = $companyUser->id;
+                $leadHistory->description = "Lead Created";
+                $leadHistory->created_at = date("Y-m-d H:i:s");
+                $leadHistory->save();
+
+                return response()->json(['status' => true, 'message' => trans('label.lead_insert_success_msg')], $this->successStatus);
+            } else {
+                Auditable::log_audit_data('ProductServiceApiController@save_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
-
-            $leadHistory = new LeadHistory();
-            $leadHistory->lead_id = $lead->id;
-            $leadHistory->company_user_id = $companyUser->id;
-            $leadHistory->description = "Lead Created";
-            $leadHistory->created_at = date("Y-m-d H:i:s");
-            $leadHistory->save();
-
-            return response()->json(['status' => true, 'message' => trans('label.lead_insert_success_msg')], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('LeadApiController@save_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
@@ -1087,7 +1099,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id) {
+            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
@@ -1213,7 +1225,7 @@ class LeadApiController extends Controller
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id) {
+            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 $lead->product_services()->detach();
                 if (!empty($lead->documents)) {
                     foreach ($lead->documents as $document) {
