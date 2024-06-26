@@ -519,7 +519,7 @@ class LeadApiController extends Controller
      *
      *    Validate `documents` are less than equal to 5 MB
      *
-     *    Validate `documents` file support image/jpg,image/jpeg,image/png,video/mp4,video/avi,application/octet-stream,video/quicktime mimetype
+     *    Validate `documents` file support jpg,jpeg,png,mp4,avi,mov,pdf,doc mimetype
      *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
@@ -585,6 +585,7 @@ class LeadApiController extends Controller
                 ],
                 'phone' => [
                     'required_without:email',
+                    'required_with:country_code_alpha',
                     'numeric',
                     'phone:country_code_alpha',
                 ],
@@ -670,6 +671,7 @@ class LeadApiController extends Controller
                 'country_code_alpha.string' => trans('label.lead_country_code_alpha_string_error_msg'),
                 'country_code_alpha.exists' => trans('label.lead_country_code_alpha_exists_error_msg'),
                 'phone.required_without' => trans('label.lead_phone_required_without_error_msg'),
+                'phone.required_with' => trans('label.lead_phone_required_without_error_msg'),
                 'phone.numeric' => trans('label.lead_phone_numeric_error_msg'),
                 'phone.phone' => trans('label.lead_phone_phone_error_msg'),
                 'company_name.string' => trans('label.company_name_string_error_msg'),
@@ -903,7 +905,7 @@ class LeadApiController extends Controller
      *
      *    Validate `documents` are less than equal to 5 MB
      *
-     *    Validate `documents` file support image/jpg,image/jpeg,image/png,video/mp4,video/avi,application/octet-stream,video/quicktime mimetype
+     *    Validate `documents` file support jpg,jpeg,png,mp4,avi,mov,pdf,doc mimetype
      *
      * @apiParamExample {bodyJson} Request-Example:
      *    {
@@ -974,6 +976,7 @@ class LeadApiController extends Controller
                 ],
                 'phone' => [
                     'required_without:email',
+                    'required_with:country_code_alpha',
                     'numeric',
                     'phone:country_code_alpha',
                 ],
@@ -1059,6 +1062,7 @@ class LeadApiController extends Controller
                 'country_code_alpha.string' => trans('label.lead_country_code_alpha_string_error_msg'),
                 'country_code_alpha.exists' => trans('label.lead_country_code_alpha_exists_error_msg'),
                 'phone.required_without' => trans('label.lead_phone_required_without_error_msg'),
+                'phone.required_with' => trans('label.lead_phone_required_without_error_msg'),
                 'phone.numeric' => trans('label.lead_phone_numeric_error_msg'),
                 'phone.phone' => trans('label.lead_phone_phone_error_msg'),
                 'company_name.string' => trans('label.company_name_string_error_msg'),
