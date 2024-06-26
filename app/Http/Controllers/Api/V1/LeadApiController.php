@@ -498,9 +498,9 @@ class LeadApiController extends Controller
      *
      *    Validate `description` is string
      *
-     * @apiParam {integer}   [deal_amount]    Deal Amount
+     * @apiParam {numeric}   [deal_amount]    Deal Amount
      *
-     *    Validate `deal_amount` is integer
+     *    Validate `deal_amount` is numeric
      *
      *
      * @apiParam {string}   [win_close_reason]    Win Close Reason
@@ -633,7 +633,7 @@ class LeadApiController extends Controller
                 ],
                 'deal_amount' => [
                     'nullable',
-                    'integer'
+                    'numeric'
                 ],
                 'time_line' => [
                     'string',
@@ -880,9 +880,9 @@ class LeadApiController extends Controller
      *
      *    Validate `description` is string
      *
-     * @apiParam {integer}   [deal_amount]    Deal Amount
+     * @apiParam {numeric}   [deal_amount]    Deal Amount
      *
-     *    Validate `deal_amount` is integer
+     *    Validate `deal_amount` is numeric
      *
      *
      * @apiParam {string}   [win_close_reason]    Win Close Reason
@@ -1022,7 +1022,7 @@ class LeadApiController extends Controller
                 ],
                 'deal_amount' => [
                     'nullable',
-                    'integer'
+                    'numeric'
                 ],
                 'time_line' => [
                     'string',

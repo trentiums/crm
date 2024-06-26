@@ -29,6 +29,10 @@ class Lead extends Model implements HasMedia
         'deleted_at',
     ];
 
+    protected $casts = [
+        'deal_amount' => 'float',
+    ];
+
     protected $fillable = [
         'company_user_id',
         'name',
