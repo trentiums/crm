@@ -400,8 +400,6 @@ class CompanyUserApiController extends Controller
             $userRequest = $request->all();
             $user = $request->user();
 
-            $userMain = User::find($userRequest['user_id']);
-
             $fields['user_id'] = [
                 'required',
                 'integer',
@@ -417,7 +415,7 @@ class CompanyUserApiController extends Controller
                 'required',
                 'min:2',
                 'email:rfc,dns',
-                $userMain ? 'unique:users,email,' . $userMain->id : 'unique:users,email',
+                'unique_email_except:' . $userRequest['user_id'],
             ];
             $fields['name'] = [
                 'required',
@@ -425,13 +423,13 @@ class CompanyUserApiController extends Controller
             ];
 
             $error = Validator::make($request->all(), $fields, [
-                'company_user_id.required' => trans('label.company_user_id_required_error_msg'),
-                'company_user_id.exists' => trans('label.company_user_id_exists_error_msg'),
-                'company_user_id.integer' => trans('label.company_user_id_integer_error_msg'),
+                'user_id.required' => trans('label.user_id_required_error_msg'),
+                'user_id.exists' => trans('label.user_id_exists_error_msg'),
+                'user_id.integer' => trans('label.user_id_integer_error_msg'),
                 'email.required' => trans('label.email_required_error_msg'),
                 'email.string' => trans('label.email_string_error_msg'),
                 'email.email' => trans('label.email_format_error_msg'),
-                'email.unique' => trans('label.email_unique_error_msg'),
+                'email.unique_email_except' => trans('label.email_unique_error_msg'),
                 'password.required' => trans('label.password_required_error_msg'),
                 'password.string' => trans('label.password_string_error_msg'),
                 'password.min' => trans('label.password_min_error_msg'),
@@ -447,6 +445,7 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
+                    $userMain = User::find($userRequest['user_id']);
                     if ($user->company->id == $userMain->companyUser->company_id) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
@@ -555,7 +554,7 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $userDetails = User::find($userRequest['user_id']);
+                    $userDetails = User::findOrFail($userRequest['user_id']);
                     if ($user->company->id == $userDetails->companyUser->company_id) {
                         $userDetails->companyUser()->delete();
                         $userDetails->delete();
