@@ -68,6 +68,7 @@ class CompanyUserApiController extends Controller
      *                  "email_verified_at": null,
      *                  "user_role": 2,
      *                  "created_at": "2024-06-04 10:07:02"
+     *                  "company_user_id": 1
      *              },
      *              {
      *                  "id": 3,
@@ -76,6 +77,7 @@ class CompanyUserApiController extends Controller
      *                  "email_verified_at": null,
      *                  "user_role": 3,
      *                  "created_at": "2024-06-11 11:51:36"
+     *                  "company_user_id": 2
      *              },
      *              {
      *                  "id": 5,
@@ -84,6 +86,7 @@ class CompanyUserApiController extends Controller
      *                  "email_verified_at": "2024-06-14 06:17:06",
      *                  "user_role": 3,
      *                  "created_at": "2024-06-14 06:17:06"
+     *                 "company_user_id": 3
      *              }
      *              ],
      *              "first_page_url": "https://crm.trentiums.com/api/v1/company-user-list?page=1",
@@ -325,13 +328,13 @@ class CompanyUserApiController extends Controller
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
      *
-     *  @apiParam {Integer}     company_user_id     Company User Id
+     *  @apiParam {Integer}     user_id     User Id
      *
-     *    Validate `company_user_id` is required
+     *    Validate `user_id` is required
      *
-     *    Validate `company_user_id` is integer
+     *    Validate `user_id` is integer
      *
-     *    Validate `company_user_id` is exists or not
+     *    Validate `user_id` is exists or not
      *
      * @apiParam {string}   name    Name
      *
@@ -361,7 +364,7 @@ class CompanyUserApiController extends Controller
      *
      * @apiParamExample {Json} Request-Example:
      *    {
-     *    "company_user_id": 1,
+     *    "user_id": 1,
      *    "name": "Bhargav",
      *    "email": "bhargav960143@gmail.com",
      *    "password": "Demo@123"
@@ -397,12 +400,10 @@ class CompanyUserApiController extends Controller
             $userRequest = $request->all();
             $user = $request->user();
 
-            $companyUser = CompanyUser::find($userRequest['company_user_id']);
-
-            $fields['company_user_id'] = [
+            $fields['user_id'] = [
                 'required',
                 'integer',
-                'exists:company_users,id,deleted_at,NULL'
+                'exists:users,id,deleted_at,NULL'
             ];
             $fields['password'] = [
                 'required',
@@ -414,7 +415,7 @@ class CompanyUserApiController extends Controller
                 'required',
                 'min:2',
                 'email:rfc,dns',
-                $companyUser ? 'unique:users,email,' . $companyUser->user->id : 'unique:users,email',
+                'unique_email_except:' . $userRequest['user_id'],
             ];
             $fields['name'] = [
                 'required',
@@ -422,13 +423,13 @@ class CompanyUserApiController extends Controller
             ];
 
             $error = Validator::make($request->all(), $fields, [
-                'company_user_id.required' => trans('label.company_user_id_required_error_msg'),
-                'company_user_id.exists' => trans('label.company_user_id_exists_error_msg'),
-                'company_user_id.integer' => trans('label.company_user_id_integer_error_msg'),
+                'user_id.required' => trans('label.user_id_required_error_msg'),
+                'user_id.exists' => trans('label.user_id_exists_error_msg'),
+                'user_id.integer' => trans('label.user_id_integer_error_msg'),
                 'email.required' => trans('label.email_required_error_msg'),
                 'email.string' => trans('label.email_string_error_msg'),
                 'email.email' => trans('label.email_format_error_msg'),
-                'email.unique' => trans('label.email_unique_error_msg'),
+                'email.unique_email_except' => trans('label.email_unique_error_msg'),
                 'password.required' => trans('label.password_required_error_msg'),
                 'password.string' => trans('label.password_string_error_msg'),
                 'password.min' => trans('label.password_min_error_msg'),
@@ -444,8 +445,8 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $userMain = User::find($companyUser->user->id);
-                    if ($user->company->id == $companyUser->company_id) {
+                    $userMain = User::find($userRequest['user_id']);
+                    if ($user->company->id == $userMain->companyUser->company_id) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
                         $userMain->password = Hash::make(trim($userRequest['password']));
@@ -496,17 +497,17 @@ class CompanyUserApiController extends Controller
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
      *
-     *  @apiParam {Integer}     company_user_id     Company User Id
+     *  @apiParam {Integer}     user_id     User Id
      *
-     *    Validate `company_user_id` is required
+     *    Validate `user_id` is required
      *
-     *    Validate `company_user_id` is integer
+     *    Validate `user_id` is integer
      *
-     *    Validate `company_user_id` is exists or not
+     *    Validate `user_id` is exists or not
      *
      * @apiParamExample {Json} Request-Example:
      *    {
-     *    "company_user_id": 1,
+     *          "user_id": 1,
      *    }
      *
      * @apiSuccess {Boolean}   status                               Response successful or not
@@ -534,16 +535,16 @@ class CompanyUserApiController extends Controller
             $userRequest = $request->all();
             $user = $request->user();
 
-            $fields['company_user_id'] = [
+            $fields['user_id'] = [
                 'required',
                 'integer',
-                'exists:company_users,id,deleted_at,NULL'
+                'exists:users,id,deleted_at,NULL'
             ];
 
             $error = Validator::make($request->all(), $fields, [
-                'company_user_id.required' => trans('label.company_user_id_required_error_msg'),
-                'company_user_id.exists' => trans('label.company_user_id_exists_error_msg'),
-                'company_user_id.integer' => trans('label.company_user_id_integer_error_msg'),
+                'user_id.required' => trans('label.user_id_required_error_msg'),
+                'user_id.exists' => trans('label.user_id_exists_error_msg'),
+                'user_id.integer' => trans('label.user_id_integer_error_msg'),
             ]);
             DB::beginTransaction();
             $validationResponse = $this->check_validation($fields, $error, 'Update Company');
@@ -553,10 +554,10 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $companyUser = CompanyUser::find($userRequest['company_user_id']);
-                    if ($user->company->id == $companyUser->company_id) {
-                        $companyUser->user()->delete();
-                        $companyUser->delete();
+                    $userDetails = User::findOrFail($userRequest['user_id']);
+                    if ($user->company->id == $userDetails->companyUser->company_id) {
+                        $userDetails->companyUser()->delete();
+                        $userDetails->delete();
                         DB::commit();
                         return response()->json(['status' => true, 'message' => trans('label.staff_user_deleted_success_msg')], $this->successStatus);
                     } else {
