@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
                     })
                     ->count();
 
-                return $userCount === 0;
+                return ($userCount === 0);
             } else {
                 return false;
             }
