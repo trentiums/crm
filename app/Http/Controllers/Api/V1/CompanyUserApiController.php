@@ -135,7 +135,7 @@ class CompanyUserApiController extends Controller
                     $companyUser = CompanyUser::join('users', "users.id", "=", "company_users.user_id")
                         ->join('companies', "companies.id", "=", "company_users.company_id")
                         ->where("company_id", "=", $user->company->id)
-                        ->select(['users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.user_role', 'users.created_at','company_users.id as company_user_id'])
+                        ->select(['users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.user_role', 'users.created_at'])
                         ->paginate(10);
                     return response()->json(['status' => true, 'data' => $companyUser], $this->successStatus);
                 } else {
@@ -328,13 +328,13 @@ class CompanyUserApiController extends Controller
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
      *
-     *  @apiParam {Integer}     company_user_id     Company User Id
+     *  @apiParam {Integer}     user_id     User Id
      *
-     *    Validate `company_user_id` is required
+     *    Validate `user_id` is required
      *
-     *    Validate `company_user_id` is integer
+     *    Validate `user_id` is integer
      *
-     *    Validate `company_user_id` is exists or not
+     *    Validate `user_id` is exists or not
      *
      * @apiParam {string}   name    Name
      *
@@ -364,7 +364,7 @@ class CompanyUserApiController extends Controller
      *
      * @apiParamExample {Json} Request-Example:
      *    {
-     *    "company_user_id": 1,
+     *    "user_id": 1,
      *    "name": "Bhargav",
      *    "email": "bhargav960143@gmail.com",
      *    "password": "Demo@123"
@@ -400,12 +400,12 @@ class CompanyUserApiController extends Controller
             $userRequest = $request->all();
             $user = $request->user();
 
-            $companyUser = CompanyUser::find($userRequest['company_user_id']);
+            $userMain = User::find($userRequest['user_id']);
 
-            $fields['company_user_id'] = [
+            $fields['user_id'] = [
                 'required',
                 'integer',
-                'exists:company_users,id,deleted_at,NULL'
+                'exists:users,id,deleted_at,NULL'
             ];
             $fields['password'] = [
                 'required',
@@ -417,7 +417,7 @@ class CompanyUserApiController extends Controller
                 'required',
                 'min:2',
                 'email:rfc,dns',
-                $companyUser ? 'unique:users,email,' . $companyUser->user->id : 'unique:users,email',
+                $userMain ? 'unique:users,email,' . $userMain->id : 'unique:users,email',
             ];
             $fields['name'] = [
                 'required',
@@ -447,8 +447,7 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $userMain = User::find($companyUser->user->id);
-                    if ($user->company->id == $companyUser->company_id) {
+                    if ($user->company->id == $userMain->companyUser->company_id) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
                         $userMain->password = Hash::make(trim($userRequest['password']));
@@ -499,17 +498,17 @@ class CompanyUserApiController extends Controller
      *       "Authorization": "Bearer XXXXXXXXXX"
      *     }
      *
-     *  @apiParam {Integer}     company_user_id     Company User Id
+     *  @apiParam {Integer}     user_id     User Id
      *
-     *    Validate `company_user_id` is required
+     *    Validate `user_id` is required
      *
-     *    Validate `company_user_id` is integer
+     *    Validate `user_id` is integer
      *
-     *    Validate `company_user_id` is exists or not
+     *    Validate `user_id` is exists or not
      *
      * @apiParamExample {Json} Request-Example:
      *    {
-     *    "company_user_id": 1,
+     *          "user_id": 1,
      *    }
      *
      * @apiSuccess {Boolean}   status                               Response successful or not
@@ -537,16 +536,16 @@ class CompanyUserApiController extends Controller
             $userRequest = $request->all();
             $user = $request->user();
 
-            $fields['company_user_id'] = [
+            $fields['user_id'] = [
                 'required',
                 'integer',
-                'exists:company_users,id,deleted_at,NULL'
+                'exists:users,id,deleted_at,NULL'
             ];
 
             $error = Validator::make($request->all(), $fields, [
-                'company_user_id.required' => trans('label.company_user_id_required_error_msg'),
-                'company_user_id.exists' => trans('label.company_user_id_exists_error_msg'),
-                'company_user_id.integer' => trans('label.company_user_id_integer_error_msg'),
+                'user_id.required' => trans('label.user_id_required_error_msg'),
+                'user_id.exists' => trans('label.user_id_exists_error_msg'),
+                'user_id.integer' => trans('label.user_id_integer_error_msg'),
             ]);
             DB::beginTransaction();
             $validationResponse = $this->check_validation($fields, $error, 'Update Company');
@@ -556,10 +555,10 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $companyUser = CompanyUser::find($userRequest['company_user_id']);
-                    if ($user->company->id == $companyUser->company_id) {
-                        $companyUser->user()->delete();
-                        $companyUser->delete();
+                    $userDetails = User::find($userRequest['user_id']);
+                    if ($user->company->id == $userDetails->companyUser->company_id) {
+                        $userDetails->companyUser()->delete();
+                        $userDetails->delete();
                         DB::commit();
                         return response()->json(['status' => true, 'message' => trans('label.staff_user_deleted_success_msg')], $this->successStatus);
                     } else {
