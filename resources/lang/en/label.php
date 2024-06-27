@@ -79,8 +79,9 @@ return [
     'staff_user_created_success_msg'                  => 'Staff member saved successfully.',
     'staff_user_updated_success_msg'                  => 'Staff member updated successfully.',
     'staff_user_deleted_success_msg'                  => 'Staff member deleted successfully.',
-    'company_user_id_required_error_msg'              => 'Invalid Company User Id',
-    'company_user_id_integer_error_msg'               => 'Invalid Company User Id',
-    'company_user_id_exists_error_msg'                => 'Invalid Company User Id',
-    'documents_array_error_msg'                       => 'Invalid documents'
+    'user_id_required_error_msg'                      => 'Invalid User Id',
+    'user_id_integer_error_msg'                       => 'Invalid User Id',
+    'user_id_exists_error_msg'                        => 'Invalid User Id',
+    'documents_array_error_msg'                       => 'Invalid documents',
+    'media_deleted_success_msg'                       => 'Media deleted successfully'
 ];

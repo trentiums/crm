@@ -16,6 +16,7 @@ use DB;
 use Hash;
 use App\Traits\Validation;
 use Illuminate\Support\Facades\Validator;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class LeadApiController extends Controller
 {
@@ -1103,6 +1104,129 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
+
+            $leadHistory = [];
+            if ($lead->name != $userRequest['name']) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead name updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->phone != $request->phone) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead phone updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->email != $request->email) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead email updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->company_name != $request->company_name) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead company name updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->company_size != $request->company_size) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead company size updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->company_website != $request->company_website) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead company website updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->budget != $request->budget) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead budget updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->time_line != $request->time_line) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead time line updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->description != $request->description) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead description updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->deal_amount != $request->deal_amount) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead deal amount updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->win_close_reason != $request->win_close_reason) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead win close reason updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->deal_close_date != $request->deal_close_date) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead deal close date updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->lead_status_id != $userRequest['lead_status_id']) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead status updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->lead_channel_id != $userRequest['lead_channel_id']) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead channel updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+            if ($lead->lead_conversion_id != $userRequest['lead_conversion_id']) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Lead conversion updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
+
             if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
@@ -1122,7 +1246,8 @@ class LeadApiController extends Controller
                 $lead->country_id = isset($country) ? $country->id : null;
                 $lead->save();
 
-                if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
+                LeadHistory::insert($leadHistory);
+                if (isset($userRequest['product_services']) && !empty($userRequest['product_services']) && !empty(array_diff($userRequest['product_services'], array_map('strval', $lead->product_services->pluck('id')->toArray())))) {
                     $lead->product_services()->detach();
                     $arrData = [];
                     foreach ($userRequest['product_services'] as $keyProduct => $valueProduct) {
@@ -1131,12 +1256,26 @@ class LeadApiController extends Controller
                     }
 
                     LeadProductService::insert($arrData);
+
+                    $leadHistory = new LeadHistory();
+                    $leadHistory->lead_id = $lead->id;
+                    $leadHistory->company_user_id = $companyUser->id;
+                    $leadHistory->description = 'Lead product services updated';
+                    $leadHistory->created_at = date("Y-m-d H:i:s");
+                    $leadHistory->save();
                 }
 
                 if ($request->file('documents')) {
                     foreach ($request->file('documents') as $file) {
                         $lead->addMedia($file)->toMediaCollection('documents');
                     }
+
+                    $leadHistory = new LeadHistory();
+                    $leadHistory->lead_id = $lead->id;
+                    $leadHistory->company_user_id = $companyUser->id;
+                    $leadHistory->description = 'Lead documents uploaded';
+                    $leadHistory->created_at = date("Y-m-d H:i:s");
+                    $leadHistory->save();
                 }
 
                 return response()->json(['status' => true, 'message' => trans('label.lead_update_success_msg')], $this->successStatus);
@@ -1390,21 +1529,36 @@ class LeadApiController extends Controller
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id) {
+            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
+                    $old_lead_status = $lead->lead_status->name;
                     $lead->update([
                         'lead_status_id' => $userRequest['lead_status_id']
                     ]);
+                    $lead->refresh();
+                    $description = "Lead status updated from " . $old_lead_status . " to " . $lead->lead_status->name;
                 } else if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['channel']) {
+                    $old_lead_channel = $lead->lead_channel->name;
                     $lead->update([
                         'lead_channel_id' => $userRequest['lead_channel_id']
                     ]);
+                    $lead->refresh();
+                    $description = "Lead channel updated from " . $old_lead_channel . " to " . $lead->lead_channel->name;
                 } else if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['conversion']) {
+                    $old_lead_conversion = $lead->lead_conversion->name;
                     $lead->update([
                         'lead_conversion_id' => $userRequest['lead_conversion_id']
                     ]);
+                    $lead->refresh();
+                    $description = "Lead conversion updated from " . $old_lead_conversion . " to " . $lead->lead_conversion->name;
                 }
 
+                $leadHistory = new LeadHistory();
+                $leadHistory->lead_id = $lead->id;
+                $leadHistory->company_user_id = $companyUser->id;
+                $leadHistory->description = $description;
+                $leadHistory->created_at = date("Y-m-d H:i:s");
+                $leadHistory->save();
                 return response()->json(['status' => true, 'message' => trans('label.lead_status_update_success_msg')], $this->successStatus);
             } else {
                 Auditable::log_audit_data('LeadApiController@update_lead_status Exception', $user, config('settings.log_type')[1], $userRequest);
@@ -1412,6 +1566,104 @@ class LeadApiController extends Controller
             }
         } catch (Exception $ex) {
             Auditable::log_audit_data('LeadApiController@update_lead_status Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
+        }
+    }
+
+    /**
+     * @api {post} /api/v1/delete-lead-document Delete Lead Document
+     * @apiSampleRequest off
+     * @apiName Delete Lead Document
+     * @apiGroup Lead
+     * @apiVersion 1.0.0
+     *
+     * @apiDescription <span class="type type__post">Delete Lead Document API</span>
+     *
+     *   API request content-type [{"key":"Content-Type","value":"application/json"}]
+     *
+     *   Authorization is based on token shared while login
+     *
+     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     *
+     *   @apiHeaderExample {json} Header-Example:
+     *     {
+     *       "Authorization": "Bearer XXXXXXXXXX"
+     *     }
+     *
+     *  @apiParam {Integer}     media_id     Lead Id
+     *
+     *    Validate `media_id` is required
+     *
+     *    Validate `media_id` is integer
+     *
+     *    Validate `media_id` is exists or not
+     *
+     * @apiParamExample {Json} Request-Example:
+     *    {
+     *          "media_id": 1,
+     *    }
+     *
+     * @apiSuccess {Boolean}   status                               Response successful or not
+     * @apiSuccess {String}    message                              Message for error & success
+     *
+     * @apiExample {curl} Example usage:
+     *       curl -i https://crm.trentiums.com/api/v1/delete-lead-document
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+     *          "status": true,
+     *          "message": "Media deleted successfully."
+     *      }
+     *
+     *     HTTP/1.1 200 Bad Request
+     *     {
+     *          "status": false,
+     *          "message": "Something wen't wrong please try again"
+     *     }
+     */
+    public function delete_lead_document(Request $request)
+    {
+        try {
+            $userRequest = $request->all();
+            $user = $request->user();
+            $fields = [
+                'media_id' => [
+                    'required',
+                    'integer',
+                    'exists:media,id'
+                ],
+            ];
+
+            $error = Validator::make($userRequest, $fields, [
+                'media_id.required' => trans('label.media_id_required_error_msg'),
+                'media_id.integer' => trans('label.media_id_integer_error_msg'),
+                'media_id.exists' => trans('label.media_id_exists_error_msg'),
+            ]);
+
+            $validationResponse = $this->check_validation($fields, $error, 'Delete Lead Document');
+            if (!$validationResponse->getData()->status) {
+                return $validationResponse;
+            }
+
+            $media = Media::find($userRequest['media_id']);
+
+            if ($media->model_type == "App\Models\Lead") {
+                $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
+                $lead = $media->model;
+                if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+                    $media->delete();
+                    return response()->json(['status' => true, 'message' => trans('label.media_deleted_success_msg')], $this->successStatus);
+                } else {
+                    Auditable::log_audit_data('LeadApiController@update_lead_status Exception', $user, config('settings.log_type')[1], $userRequest);
+                    return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+                }
+            } else{
+                Auditable::log_audit_data('LeadApiController@update_lead_status Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+        } catch (Exception $ex) {
+            Auditable::log_audit_data('LeadApiController@delete_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
