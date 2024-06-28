@@ -2,6 +2,7 @@
 
 Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], function () {
     Route::post('login', 'LoginApiController@login');
+    Route::get('setting-list', 'SettingApiController@settings_list');
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
 
