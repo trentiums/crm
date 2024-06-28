@@ -20,6 +20,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::post('delete-lead', 'LeadApiController@delete_lead');
         Route::post('update-lead-status', 'LeadApiController@update_lead_status');
         Route::post('delete-lead-document', 'LeadApiController@delete_lead_document');
+        Route::get('lead-details', 'LeadApiController@lead_details');
 
         // Company
         //Route::post('companies/media', 'CompanyApiController@storeMedia')->name('companies.storeMedia');
