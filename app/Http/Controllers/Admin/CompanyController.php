@@ -14,6 +14,7 @@ use App\Models\Role;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
@@ -89,21 +90,32 @@ class CompanyController extends Controller
 
     public function store(StoreCompanyRequest $request)
     {
-        $role = Role::where('title','Company Admin')->first();
+        DB::beginTransaction();
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_role' => $role ? $role->id : null
+            'user_role' => array_flip(Role::ROLES)['Company Admin']
         ]);
-        $company = Company::create([
-            'name' => $request->name,
-            'user_id' => $user->id
-        ]);
-        CompanyUser::create([
-            'company_id' => $company->id,
-            'user_id' => $user->id
-        ]);
+        DB::commit();
+        if ($user) {
+            $company = Company::create([
+                'name' => $request->name,
+                'user_id' => $user->id
+            ]);
+            DB::commit();
+            if ($user) {
+                CompanyUser::create([
+                    'company_id' => $company->id,
+                    'user_id' => $user->id
+                ]);
+                DB::commit();
+            } else {
+                DB::rollBack();
+            }
+        } else {
+            DB::rollBack();
+        }
 
         if ($request->input('logo', false)) {
             $company->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))->toMediaCollection('logo');
@@ -132,7 +144,7 @@ class CompanyController extends Controller
         $company->update($request->all());
 
         if ($request->input('logo', false)) {
-            if (! $company->logo || $request->input('logo') !== $company->logo->file_name) {
+            if (!$company->logo || $request->input('logo') !== $company->logo->file_name) {
                 if ($company->logo) {
                     $company->logo->delete();
                 }
