@@ -341,10 +341,15 @@ class LeadApiController extends Controller
                 return $validationResponse;
             }
 
+            if(empty($user->companyUser)){
+                Auditable::log_audit_data('ProductServiceApiController@lead_list Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
             $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])
                 ->whereHas('company_user', function ($query) use ($user) {
                     $query->where('company_id', $user->companyUser->company_id);
-                });
+            });
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
                 $leadConversion->whereDate('leads.created_at', ">=", $userRequest['start_date']);
@@ -1099,6 +1104,11 @@ class LeadApiController extends Controller
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@update_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
             if ($request->country_code_alpha) {
                 $country = Country::where('country_code_alpha', $request->country_code_alpha)->first();
             }
@@ -1367,6 +1377,11 @@ class LeadApiController extends Controller
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@delete_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 $lead->product_services()->detach();
@@ -1528,6 +1543,11 @@ class LeadApiController extends Controller
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
 
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@update_lead_status Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
             $lead = Lead::find($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                 if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
@@ -1650,6 +1670,12 @@ class LeadApiController extends Controller
 
             if ($media->model_type == "App\Models\Lead") {
                 $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
+
+                if (empty($companyUser)) {
+                    Auditable::log_audit_data('ProductServiceApiController@delete_lead_document Exception', $user, config('settings.log_type')[1], $userRequest);
+                    return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+                }
+
                 $lead = $media->model;
                 if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
                     $media->delete();
@@ -1890,6 +1916,11 @@ class LeadApiController extends Controller
             }
 
             $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
+
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@lead_details Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
 
             $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->findOrFail($userRequest['lead_id']);
             if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {

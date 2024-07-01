@@ -9,6 +9,7 @@ use App\Http\Requests\MassDestroyCompanyRequest;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
@@ -87,6 +88,10 @@ class CompanyController extends Controller
     public function store(StoreCompanyRequest $request)
     {
         $company = Company::create($request->all());
+        CompanyUser::create([
+            'company_id' => $company->id,
+            'user_id' => $request->user_id
+        ]);
 
         if ($request->input('logo', false)) {
             $company->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))->toMediaCollection('logo');

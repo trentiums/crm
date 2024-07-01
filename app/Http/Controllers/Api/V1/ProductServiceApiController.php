@@ -202,6 +202,12 @@ class ProductServiceApiController extends Controller
             }
 
             $companyUser = CompanyUser::where('user_id', "=", $user->id)->first();
+
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@save_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
             $userRequest['company_user_id'] = $companyUser->id;
 
             $check = ProductService::whereHas('companyUser', function ($query) use ($companyUser) {
@@ -554,7 +560,9 @@ class ProductServiceApiController extends Controller
             })->where('id', $userRequest['product_service_id'])->first();
 
             if ($productService) {
-                $productService->documents->delete();
+                if ($productService->documents) {
+                    $productService->documents->delete();
+                }
                 $productService->delete();
                 return response()->json(['status' => true, 'message' => trans('label.product_delete_success_message')], $this->successStatus);
             } else {
