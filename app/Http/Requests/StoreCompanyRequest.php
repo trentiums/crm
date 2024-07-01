@@ -21,9 +21,15 @@ class StoreCompanyRequest extends FormRequest
                 'string',
                 'required',
             ],
-            'user_id' => [
+            'email' => [
                 'required',
-                'integer',
+                'unique:users',
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
             ],
         ];
     }

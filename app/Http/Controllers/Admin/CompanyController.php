@@ -10,9 +10,11 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use App\Models\CompanyUser;
+use App\Models\Role;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
@@ -87,10 +89,20 @@ class CompanyController extends Controller
 
     public function store(StoreCompanyRequest $request)
     {
-        $company = Company::create($request->all());
+        $role = Role::where('title','Company Admin')->first();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'user_role' => $role ? $role->id : null
+        ]);
+        $company = Company::create([
+            'name' => $request->name,
+            'user_id' => $user->id
+        ]);
         CompanyUser::create([
             'company_id' => $company->id,
-            'user_id' => $request->user_id
+            'user_id' => $user->id
         ]);
 
         if ($request->input('logo', false)) {

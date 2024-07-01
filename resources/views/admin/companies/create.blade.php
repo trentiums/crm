@@ -31,18 +31,24 @@
                 <span class="help-block">{{ trans('cruds.company.fields.logo_helper') }}</span>
             </div>
             <div class="form-group">
-                <label class="required" for="user_id">{{ trans('cruds.company.fields.user') }}</label>
-                <select class="form-control select2 {{ $errors->has('user') ? 'is-invalid' : '' }}" name="user_id" id="user_id" required>
-                    @foreach($users as $id => $entry)
-                        <option value="{{ $id }}" {{ old('user_id') == $id ? 'selected' : '' }}>{{ $entry }}</option>
-                    @endforeach
-                </select>
-                @if($errors->has('user'))
+                <label class="required" for="email">{{ trans('cruds.company.fields.email') }}</label>
+                <input class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}" type="email" name="email" id="email" value="{{ old('email') }}" required>
+                @if($errors->has('email'))
                     <div class="invalid-feedback">
-                        {{ $errors->first('user') }}
+                        {{ $errors->first('email') }}
                     </div>
                 @endif
-                <span class="help-block">{{ trans('cruds.company.fields.user_helper') }}</span>
+                <span class="help-block">{{ trans('cruds.company.fields.email_helper') }}</span>
+            </div>
+            <div class="form-group">
+                <label class="required" for="password">{{ trans('cruds.company.fields.password') }}</label>
+                <input class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}" type="password" name="password" id="password" required>
+                @if($errors->has('password'))
+                    <div class="invalid-feedback">
+                        {{ $errors->first('password') }}
+                    </div>
+                @endif
+                <span class="help-block">{{ trans('cruds.company.fields.password_helper') }}</span>
             </div>
             <div class="form-group">
                 <button class="btn btn-danger" type="submit">
