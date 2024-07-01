@@ -9,9 +9,15 @@ use App\Http\Requests\MassDestroyCompanyRequest;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Models\CompanyUser;
+use App\Models\Role;
 use App\Models\User;
+use App\Traits\Auditable;
+use Exception;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
@@ -86,17 +92,37 @@ class CompanyController extends Controller
 
     public function store(StoreCompanyRequest $request)
     {
-        $company = Company::create($request->all());
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'user_role' => array_flip(Role::ROLES)['Company Admin']
+            ]);
+            $company = Company::create([
+                'name' => $request->name,
+                'user_id' => $user->id
+            ]);
+            CompanyUser::create([
+                'company_id' => $company->id,
+                'user_id' => $user->id
+            ]);
 
-        if ($request->input('logo', false)) {
-            $company->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))->toMediaCollection('logo');
+            if ($request->input('logo', false)) {
+                $company->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))->toMediaCollection('logo');
+            }
+
+            if ($media = $request->input('ck-media', false)) {
+                Media::whereIn('id', $media)->update(['model_id' => $company->id]);
+            }
+            DB::commit();
+            return redirect()->route('admin.companies.index');
+        } catch (Exception $ex) {
+            DB::rollBack();
+            Auditable::log_audit_data('CompanyController@store Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return redirect()->back()->with('error',$ex);
         }
-
-        if ($media = $request->input('ck-media', false)) {
-            Media::whereIn('id', $media)->update(['model_id' => $company->id]);
-        }
-
-        return redirect()->route('admin.companies.index');
     }
 
     public function edit(Company $company)
@@ -115,7 +141,7 @@ class CompanyController extends Controller
         $company->update($request->all());
 
         if ($request->input('logo', false)) {
-            if (! $company->logo || $request->input('logo') !== $company->logo->file_name) {
+            if (!$company->logo || $request->input('logo') !== $company->logo->file_name) {
                 if ($company->logo) {
                     $company->logo->delete();
                 }

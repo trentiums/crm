@@ -115,6 +115,10 @@ return [
             'deleted_at_helper' => ' ',
             'user'              => 'User',
             'user_helper'       => ' ',
+            'email'             => 'Email',
+            'email_helper'      => ' ',
+            'password'          => 'Password',
+            'password_helper'   => ' ',
         ],
     ],
     'companyUser' => [
