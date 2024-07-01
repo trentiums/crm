@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Traits\Auditable;
 use App\Models\Lead;
-use App\Models\LeadConversionCount;
-use App\Models\LeadConversionCountView;
-use App\Models\Role;
+use App\Models\LeadConversion;
 use Illuminate\Http\Request;
 use App\Traits\Validation;
 use Exception;
@@ -48,13 +46,33 @@ class DashboardApiController extends Controller
      *     HTTP/1.1 200 OK
      *     {
      *         "status": true,
-     *         "data": {
-     *             "initial_count": "17",
-     *             "proposal stage_count": 0,
-     *             "negotiation_count": "1",
-     *             "closed_won_count": 0,
-     *             "closed_lost_count": 0
-     *         }
+     *         "data": [
+     *            {
+     *                "lead_conversion_id": 1,
+     *                "name": "Initial",
+     *                "lead_count": 23
+     *            },
+     *            {
+     *                "lead_conversion_id": 2,
+     *                "name": "Proposal Stage",
+     *                "lead_count": 0
+     *            },
+     *            {
+     *                "lead_conversion_id": 3,
+     *                "name": "Negotiation",
+     *                "lead_count": 2
+     *            },
+     *            {
+     *                "lead_conversion_id": 4,
+     *                "name": "Closed-Won",
+     *                "lead_count": 0
+     *            },
+     *            {
+     *                "lead_conversion_id": 5,
+     *                "name": "Closed-Lost",
+     *                "lead_count": 0
+     *            }
+     *         ]
      *     }
      *
      *     HTTP/1.1 200 Bad Request
@@ -70,7 +88,11 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $response = $response = LeadConversionCount::all();
+                $response = LeadConversion::select('lead_conversions.id as lead_conversion_id', 'lead_conversions.name')
+                ->withCount(['leads as lead_count' => function ($query) use($user) {
+                    $query->join('company_users', 'leads.company_user_id', '=', 'company_users.id')
+                          ->where('company_users.company_id',$user->companyUser->company_id);
+                }])->orderBy('lead_conversion_id','ASC')->get();
                 return response()->json(['status' => true, 'data' => $response], $this->successStatus);
             } else {
                 Auditable::log_audit_data('DashboardApiController@lead_stage_count Company not found', null, config('settings.log_type')[1], $userRequest);
