@@ -95,7 +95,7 @@ class ProductServiceApiController extends Controller
             }
 
             $leadConversion = ProductService::join('company_users', 'company_users.id', "=", "product_services.company_user_id")
-                ->where("company_users.user_id", "=", $user->id)
+                ->where("company_users.company_id", "=", $user->companyUser->company_id)
                 ->select(['product_services.name', 'product_services.description', 'product_services.id'])
                 ->paginate(10);
 
