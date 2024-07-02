@@ -20,7 +20,6 @@ class Lead extends Model implements HasMedia
 
     protected $appends = [
         'documents',
-        'is_editable_deleteable'
     ];
 
     protected $dates = [
@@ -117,21 +116,6 @@ class Lead extends Model implements HasMedia
     public function setDealCloseDateAttribute($value)
     {
         $this->attributes['deal_close_date'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
-    }
-
-    public function getIsEditableDeleteableAttribute()
-    {
-        $companyUser = CompanyUser::where("user_id", "=", auth()->id())->first();
-
-        if ($companyUser) {
-            if ($this->company_user_id == $companyUser->id || (auth()->user()->user_role == array_flip(Role::ROLES)['Company Admin'] && auth()->user()->companyUser->company_id == $this->company_user->company_id)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        return false;
     }
 
     public function registerMediaConversions(Media $media = null): void

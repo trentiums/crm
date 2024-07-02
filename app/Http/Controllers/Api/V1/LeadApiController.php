@@ -1237,7 +1237,7 @@ class LeadApiController extends Controller
                 ]);
             }
 
-            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+            if ($user->companyUser->company_id == $lead->company_user->company_id) {
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
@@ -1383,7 +1383,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+            if ($user->companyUser->company_id == $lead->company_user->company_id) {
                 $lead->product_services()->detach();
                 if (!empty($lead->documents)) {
                     foreach ($lead->documents as $document) {
@@ -1549,7 +1549,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+            if ($user->companyUser->company_id == $lead->company_user->company_id) {
                 if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
                     $old_lead_status = $lead->lead_status->name;
                     $lead->update([
@@ -1677,7 +1677,7 @@ class LeadApiController extends Controller
                 }
 
                 $lead = $media->model;
-                if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+                if ($user->companyUser->company_id == $lead->company_user->company_id) {
                     $media->delete();
                     return response()->json(['status' => true, 'message' => trans('label.media_deleted_success_msg')], $this->successStatus);
                 } else {
@@ -1923,7 +1923,15 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->findOrFail($userRequest['lead_id']);
-            if ($lead->company_user_id == $companyUser->id || ($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_user->company_id)) {
+            if ($user->companyUser->company_id == $lead->company_user->company_id) {
+
+                $leadHistory = new LeadHistory();
+                $leadHistory->lead_id = $lead->id;
+                $leadHistory->company_user_id = $companyUser->id;
+                $leadHistory->description = $user->name.' show lead '.$lead->id;
+                $leadHistory->created_at = date("Y-m-d H:i:s");
+                $leadHistory->save();
+                
                 return response()->json(['status' => true, 'data' => $lead], $this->successStatus);
             } else {
                 Auditable::log_audit_data('ProductServiceApiController@lead_details Exception', $user, config('settings.log_type')[1], $userRequest);
