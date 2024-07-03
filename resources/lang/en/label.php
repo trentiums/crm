@@ -2,6 +2,12 @@
 return [
     'invalid_login_credential_error_msg'        => 'Those login details don’t look right. Please check and try again.',
     'something_went_wrong_error_msg'            => 'Oops! Something went wrong. Please try again.',
+    'record_not_found_error_msg'                => 'We couldn’t find what you were looking for. Please try again.',
+    'fatal_error_msg'                           => 'Your video size is larger than supported by platform. Please try again with lower size.',
+    'invalid_method_error_message'              => 'Oops! Looks like you tried something we don’t support. Please try again.',
+    'internal_server_error'                     => 'Something wen\'t wrong, please try again.',
+    'max_file_size_error_msg'                   => 'Your file is too big. Please try a smaller one.',
+    'throttle'                                  => 'Hold up! Too many attempts. Please try again in :minutes minutes.',
 
     'search_string_error_msg'                         => 'Invalid search, please try again.',
     'start_date_string_error_msg'                     => 'Invalid start date, please try again.',
