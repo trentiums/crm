@@ -385,6 +385,8 @@ class LeadApiController extends Controller
                     $order_by = "users.name";
                 }
                 $leadConversion->orderBy($order_by, Lead::ORDER[$userRequest['sort_order']]);
+            } else {
+                $leadConversion->orderBy('id','DESC');
             }
 
             $leadConversion = $leadConversion->paginate(10);
