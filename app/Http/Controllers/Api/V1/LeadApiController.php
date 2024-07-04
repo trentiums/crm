@@ -1931,7 +1931,7 @@ class LeadApiController extends Controller
                 $leadHistory->description = $user->name.' show lead '.$lead->id;
                 $leadHistory->created_at = date("Y-m-d H:i:s");
                 $leadHistory->save();
-                
+
                 return response()->json(['status' => true, 'data' => $lead], $this->successStatus);
             } else {
                 Auditable::log_audit_data('ProductServiceApiController@lead_details Exception', $user, config('settings.log_type')[1], $userRequest);

@@ -284,7 +284,7 @@ class DashboardApiController extends Controller
                     $query->where('name', 'NEW');
                 })->whereHas('lead_conversion', function ($query) {
                     $query->where('name', 'Initial');
-                })->paginate(10);
+                })->orderBy('id','DESC')->paginate(10);
 
                 return response()->json(['status' => true, 'data' => $leadList], $this->successStatus);
             } else {

@@ -22,12 +22,12 @@ class Lead extends Model implements HasMedia
         'documents',
     ];
 
-    protected $dates = [
+    /* protected $dates = [
         'deal_close_date',
         'created_at',
         'updated_at',
         'deleted_at',
-    ];
+    ]; */
 
     protected $casts = [
         'deal_amount' => 'float',
@@ -73,10 +73,10 @@ class Lead extends Model implements HasMedia
         "3" => "conversion",
     ];
 
-    protected function serializeDate(DateTimeInterface $date)
+    /* protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
-    }
+    } */
 
     public function lead_status()
     {
