@@ -92,6 +92,7 @@ class DashboardApiController extends Controller
                 ->leftJoinSub(
                     Lead::join('company_users', 'company_users.id', '=', 'leads.company_user_id')
                         ->where('company_users.company_id', $user->companyUser->company_id)
+                        ->whereNull('company_users.deleted_at')
                         ->select('leads.*'),
                     'tmp',
                     'tmp.lead_conversion_id',
