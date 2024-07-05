@@ -88,11 +88,19 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $response = LeadConversion::select('lead_conversions.id as lead_conversion_id', 'lead_conversions.name')
-                ->withCount(['leads as lead_count' => function ($query) use($user) {
-                    $query->join('company_users', 'leads.company_user_id', '=', 'company_users.id')
-                          ->where('company_users.company_id',$user->companyUser->company_id);
-                }])->orderBy('lead_conversion_id','ASC')->get();
+                $response = LeadConversion::select('lead_conversions.id as lead_conversion_id', 'lead_conversions.name', DB::raw('COUNT(tmp.id) AS lead_count'))
+                ->leftJoinSub(
+                    Lead::join('company_users', 'company_users.id', '=', 'leads.company_user_id')
+                        ->where('company_users.company_id', $user->companyUser->company_id)
+                        ->select('leads.*'),
+                    'tmp',
+                    'tmp.lead_conversion_id',
+                    '=',
+                    'lead_conversions.id'
+                )
+                ->groupBy('lead_conversions.id', 'lead_conversions.name')
+                ->orderBy('lead_conversion_id','ASC')
+                ->get();
                 return response()->json(['status' => true, 'data' => $response], $this->successStatus);
             } else {
                 Auditable::log_audit_data('DashboardApiController@lead_stage_count Company not found', null, config('settings.log_type')[1], $userRequest);
