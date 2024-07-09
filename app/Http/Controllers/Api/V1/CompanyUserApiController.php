@@ -352,9 +352,7 @@ class CompanyUserApiController extends Controller
      *
      *   Validate `email` is exists or not
      *
-     * @apiParam {String}     password        Security Password for account login
-     *
-     *   Validate `password` field is required.
+     * @apiParam {String}     [password]        Security Password for account login
      *
      *   Validate `password` is string
      *
@@ -406,7 +404,7 @@ class CompanyUserApiController extends Controller
                 'exists:users,id,deleted_at,NULL'
             ];
             $fields['password'] = [
-                'required',
+                'nullable',
                 'string',
                 'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
@@ -449,7 +447,7 @@ class CompanyUserApiController extends Controller
                     if ($user->company->id == $userMain->companyUser->company_id && $userMain->user_role != array_flip(Role::ROLES)['Company Admin']) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
-                        $userMain->password = Hash::make(trim($userRequest['password']));
+                        $userMain->password = isset($userRequest['password']) ? Hash::make(trim($userRequest['password'])) : $userMain->password;
                         $userMain->user_role = array_flip(Role::ROLES)['Company Staff'];
                         $userMain->updated_at = date("Y-m-d H:i:s");
                         $userMain->save();

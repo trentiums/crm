@@ -178,7 +178,7 @@ class CmsApiController extends Controller
     public function lead_conversion_list(Request $request)
     {
         try {
-            $leadConversion = LeadConversion::all();
+            $leadConversion = LeadConversion::orderBy('id','ASC')->get();
             return response()->json(['status' => true, 'data' => $leadConversion], $this->successStatus);
         } catch (Exception $ex) {
             Auditable::log_audit_data('CmsApiController@lead_conversion_list Exception', null, config('settings.log_type')[0], $ex->getMessage());

@@ -58,10 +58,10 @@ class CountryApiController extends Controller
     public function country_list(){
         try {
             $countryList = Cache::remember("country_code_list", config('settings.cache_data_limit')['seconds'] * config('settings.cache_data_limit')['days'], function (){
-                return Country::orderBy('display_name', 'ASC')
+                return Country::orderBy('sort_order', 'DESC')->orderBy('id','ASC')
                     ->get(['id','full_name','dialling_code', 'country_code_alpha','flag','postcode_regexp']);
             });
-            
+
             return response()->json(['status' => true, 'data' => $countryList], $this->successStatus);
         }
         catch (Exception $ex) {
