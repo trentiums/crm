@@ -52,6 +52,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::post('save-company-user', 'CompanyUserApiController@save_company_user');
         Route::post('update-company-user', 'CompanyUserApiController@update_company_user');
         Route::post('delete-company-user', 'CompanyUserApiController@delete_company_user');
+        Route::get('company-user-details', 'CompanyUserApiController@company_user_details');
 
         // Dashboard
         Route::get('lead-stage-count', 'DashboardApiController@lead_stage_count');

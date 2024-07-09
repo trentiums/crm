@@ -581,4 +581,117 @@ class CompanyUserApiController extends Controller
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }
+
+    /**
+     * @api {get} /api/v1/company-user-details Company User Details
+     * @apiSampleRequest off
+     * @apiName Company User Details
+     * @apiGroup Company
+     * @apiVersion 1.0.0
+     *
+     * @apiDescription <span class="type type__get">Company User Details API</span>
+     *
+     *   API request content-type [{"key":"Content-Type","value":"application/json"}]
+     *
+     *   Authorization is based on token shared while login
+     *
+     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     *
+     *   @apiHeaderExample {json} Header-Example:
+     *     {
+     *       "Authorization": "Bearer XXXXXXXXXX"
+     *     }
+     *
+     *  @apiParam {Integer}     user_id     User Id
+     *
+     *    Validate `user_id` is required
+     *
+     *    Validate `user_id` is integer
+     *
+     *    Validate `user_id` is exists or not
+     *
+     * @apiParamExample {Json} Request-Example:
+     *    {
+     *          "user_id": 1,
+     *    }
+     *
+     * @apiSuccess {Boolean}   status                               Response successful or not
+     * @apiSuccess {String}    message                              Message for error & success
+     *
+     * @apiExample {curl} Example usage:
+     *       curl -i https://crm.trentiums.com/api/v1/company-user-details
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+     *          "status": true,
+     *          "data": {
+     *              "id": 41,
+     *              "name": "Testing21",
+     *              "email": "testing23@gmail.com",
+     *              "email_verified_at": null,
+     *              "user_role": 3,
+     *              "created_at": "2024-07-09 05:36:45",
+     *              "company_user": {
+     *                  "id": 20,
+     *                  "created_at": "2024-07-09T05:36:45.000000Z",
+     *                  "updated_at": "2024-07-09T05:36:45.000000Z",
+     *                  "deleted_at": null,
+     *                  "company_id": 3,
+     *                  "user_id": 41
+     *              }
+     *          }
+     *      }
+     *
+     *     HTTP/1.1 200 Bad Request
+     *     {
+     *          "status": false,
+     *          "message": "Something wen't wrong please try again"
+     *     }
+     */
+    public function company_user_details(Request $request)
+    {
+        try {
+            $userRequest = $request->all();
+            $user = $request->user();
+
+            $fields['user_id'] = [
+                'required',
+                'integer',
+                'exists:users,id,deleted_at,NULL'
+            ];
+
+            $error = Validator::make($request->all(), $fields, [
+                'user_id.required' => trans('label.user_id_required_error_msg'),
+                'user_id.exists' => trans('label.user_id_exists_error_msg'),
+                'user_id.integer' => trans('label.user_id_integer_error_msg'),
+            ]);
+
+            $validationResponse = $this->check_validation($fields, $error, 'Update Company');
+            if (!$validationResponse->getData()->status) {
+                return $validationResponse;
+            }
+
+            if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
+                if (isset($user->company) && !empty($user->company)) {
+                    $userDetails = User::select(['id','name','email','email_verified_at','user_role','created_at'])->findOrFail($userRequest['user_id']);
+                    if ($user->company->id == $userDetails->companyUser->company_id) {
+                        return response()->json(['status' => true, 'data' => $userDetails], $this->successStatus);
+                    } else {
+                        Auditable::log_audit_data('CompanyUserApiController@company_user_details Cannot show company user', null, config('settings.log_type')[1], $userRequest);
+                        return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+                    }
+                } else {
+                    Auditable::log_audit_data('CompanyUserApiController@company_user_details Company not found', null, config('settings.log_type')[1], $userRequest);
+                    return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+                }
+            } else {
+                Auditable::log_audit_data('CompanyUserApiController@company_user_details staff can try to check api', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+        } catch (Exception $ex) {
+            Auditable::log_audit_data('CompanyUserApiController@company_user_details Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
+        }
+    }
 }
