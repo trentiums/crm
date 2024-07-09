@@ -447,7 +447,9 @@ class CompanyUserApiController extends Controller
                     if ($user->company->id == $userMain->companyUser->company_id && $userMain->user_role != array_flip(Role::ROLES)['Company Admin']) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
-                        $userMain->password = isset($userRequest['password']) ? Hash::make(trim($userRequest['password'])) : $userMain->password;
+                        if(!empty($userRequest['password'])){
+                            $userMain->password = Hash::make(trim($userRequest['password']));
+                        }
                         $userMain->user_role = array_flip(Role::ROLES)['Company Staff'];
                         $userMain->updated_at = date("Y-m-d H:i:s");
                         $userMain->save();
