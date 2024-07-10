@@ -56,4 +56,9 @@ class ProductService extends Model implements HasMedia
     {
         return $this->belongsTo(CompanyUser::class);
     }
+
+    public function leads()
+    {
+        return $this->belongsToMany(Lead::class);
+    }
 }

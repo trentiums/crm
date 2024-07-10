@@ -29,6 +29,7 @@ return [
     'product_saved_success_message'                   => 'Product/Service saved success.',
     'product_update_success_message'                  => 'Product/Service updated success.',
     'product_delete_success_message'                  => 'Product/Service deleted success.',
+    "product_service_can't_delete"                    => 'You cannot delete this product service',
     'product_service_id_required_error_msg'           => 'Invalid Product/Service Id, please try again.',
     'product_service_id_integer_error_msg'            => 'Invalid Product/Service Id, please try again.',
     'product_service_id_exists_error_msg'             => 'Invalid Product/Service Id, please try again.',
