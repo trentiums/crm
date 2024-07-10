@@ -447,7 +447,7 @@ class CompanyUserApiController extends Controller
                     if ($user->company->id == $userMain->companyUser->company_id && $userMain->user_role != array_flip(Role::ROLES)['Company Admin']) {
                         $userMain->name = ucfirst($userRequest['name']);
                         $userMain->email = strtolower($userRequest['email']);
-                        if(!empty($userRequest['password'])){
+                        if (!empty($userRequest['password'])) {
                             $userMain->password = Hash::make(trim($userRequest['password']));
                         }
                         $userMain->user_role = array_flip(Role::ROLES)['Company Staff'];
@@ -556,6 +556,14 @@ class CompanyUserApiController extends Controller
                 if (isset($user->company) && !empty($user->company)) {
                     $userDetails = User::findOrFail($userRequest['user_id']);
                     if ($user->company->id == $userDetails->companyUser->company_id && $userDetails->user_role != array_flip(Role::ROLES)['Company Admin']) {
+                        if (isset($userDetails->companyUser->productServices) && !empty($userDetails->companyUser->productServices)) {
+                            foreach ($userDetails->companyUser->productServices as $productService) {
+                                if (count($productService->leads) > 0) {
+                                    Auditable::log_audit_data('CompanyUserApiController@delete_company_user Cannot delete company user', null, config('settings.log_type')[1], $userRequest);
+                                    return response()->json(['status' => false, 'message' => trans("label.staff_user_service_can't_delete")], $this->successStatus);
+                                }
+                            };
+                        }
                         $userDetails->companyUser()->delete();
                         $userDetails->delete();
                         DB::commit();
@@ -674,7 +682,7 @@ class CompanyUserApiController extends Controller
 
             if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
                 if (isset($user->company) && !empty($user->company)) {
-                    $userDetails = User::select(['id','name','email','email_verified_at','user_role','created_at'])->findOrFail($userRequest['user_id']);
+                    $userDetails = User::select(['id', 'name', 'email', 'email_verified_at', 'user_role', 'created_at'])->findOrFail($userRequest['user_id']);
                     if ($user->company->id == $userDetails->companyUser->company_id) {
                         return response()->json(['status' => true, 'data' => $userDetails], $this->successStatus);
                     } else {

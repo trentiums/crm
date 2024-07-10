@@ -366,9 +366,9 @@ class ProductServiceApiController extends Controller
      *
      *    Validate `description` is string
      *
-     * @apiParam {file}   [document]    Document
+     * @apiParam {file}   [documents]    Documents
      *
-     *    Validate `document` is file
+     *    Validate `documents` is file
      *
      * @apiSuccess {Boolean}   status                               Response successful or not
      * @apiSuccess {String}    message                              Message for error & success
@@ -378,7 +378,7 @@ class ProductServiceApiController extends Controller
      *          "product_service_id" : 1,
      *          "name" : "demo",
      *          "description" : "demo description",
-     *          "document" : "document.jpg"
+     *          "documents" : "document.jpg"
      *      }
      *
      * @apiExample {curl} Example usage:
