@@ -551,7 +551,7 @@ class ProductServiceApiController extends Controller
 
             $getCompany = CompanyUser::where('user_id', "=", $user->id)->first();
             if (empty($getCompany)) {
-                Auditable::log_audit_data('ProductServiceApiController@details_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
+                Auditable::log_audit_data('ProductServiceApiController@delete_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
@@ -560,6 +560,11 @@ class ProductServiceApiController extends Controller
             })->where('id', $userRequest['product_service_id'])->first();
 
             if ($productService) {
+                if(count($productService->leads)>0){
+                    Auditable::log_audit_data('ProductServiceApiController@delete_product_services Exception', $user, config('settings.log_type')[1], $userRequest);
+                    return response()->json(['status' => false, 'message' => trans("label.product_service_can't_delete")], $this->successStatus);
+                }
+
                 if ($productService->documents) {
                     $productService->documents->delete();
                 }
