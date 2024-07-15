@@ -91,5 +91,6 @@ return [
     'user_id_integer_error_msg'                       => 'Invalid User Id',
     'user_id_exists_error_msg'                        => 'Invalid User Id',
     'documents_array_error_msg'                       => 'Invalid documents',
-    'media_deleted_success_msg'                       => 'Media deleted successfully'
+    'media_deleted_success_msg'                       => 'Media deleted successfully',
+    'user_name_unique_error_msg'                      => 'Provided username already in use, please try again.'
 ];

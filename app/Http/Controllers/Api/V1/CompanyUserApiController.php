@@ -248,7 +248,8 @@ class CompanyUserApiController extends Controller
             ];
             $fields['name'] = [
                 'required',
-                'string'
+                'string',
+                'unique_user_name:'.$user->companyUser->company_id
             ];
 
             $error = Validator::make($request->all(), $fields, [
@@ -262,6 +263,7 @@ class CompanyUserApiController extends Controller
                 'password.regex' => trans('label.password_regex_error_msg'),
                 'name.required' => trans('label.company_user_name_required_error_msg'),
                 'name.string' => trans('label.company_user_name_string_error_msg'),
+                'name.unique_user_name' => trans('label.user_name_unique_error_msg')
             ]);
             DB::beginTransaction();
             $validationResponse = $this->check_validation($fields, $error, 'Company User Save');
@@ -417,7 +419,8 @@ class CompanyUserApiController extends Controller
             ];
             $fields['name'] = [
                 'required',
-                'string'
+                'string',
+                'unique_user_name:'.$user->companyUser->company_id.','.$userRequest['user_id']
             ];
 
             $error = Validator::make($request->all(), $fields, [
@@ -434,6 +437,7 @@ class CompanyUserApiController extends Controller
                 'password.regex' => trans('label.password_regex_error_msg'),
                 'name.required' => trans('label.company_user_name_required_error_msg'),
                 'name.string' => trans('label.company_user_name_string_error_msg'),
+                'name.unique_user_name' => trans('label.user_name_unique_error_msg')
             ]);
             DB::beginTransaction();
             $validationResponse = $this->check_validation($fields, $error, 'Update Company');

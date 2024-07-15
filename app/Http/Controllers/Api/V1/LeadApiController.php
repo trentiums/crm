@@ -494,9 +494,9 @@ class LeadApiController extends Controller
      *
      *    Validate `lead_conversion_id` is exists or not
      *
-     * @apiParam {string}   [budget]    Budget
+     * @apiParam {numeric}   [budget]    Budget
      *
-     *    Validate `budget` is string
+     *    Validate `budget` is numeric
      *
      * @apiParam {string}   [time_line]    Timeline
      *
@@ -722,6 +722,7 @@ class LeadApiController extends Controller
             if ($companyUser) {
                 $lead = new Lead();
                 $lead->company_user_id = $companyUser->id;
+                $lead->company_id = $companyUser->company_id;
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
@@ -878,9 +879,9 @@ class LeadApiController extends Controller
      *
      *    Validate `lead_conversion_id` is exists or not
      *
-     * @apiParam {string}   [budget]    Budget
+     * @apiParam {numeric}   [budget]    Budget
      *
-     *    Validate `budget` is string
+     *    Validate `budget` is numeric
      *
      * @apiParam {string}   [time_line]    Timeline
      *
@@ -1239,7 +1240,7 @@ class LeadApiController extends Controller
                 ]);
             }
 
-            if ($user->companyUser->company_id == $lead->company_user->company_id) {
+            if ($user->companyUser->company_id == $lead->company_id) {
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
@@ -1385,7 +1386,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_user->company_id) {
+            if ($user->companyUser->company_id == $lead->company_id) {
                 $lead->product_services()->detach();
                 if (!empty($lead->documents)) {
                     foreach ($lead->documents as $document) {
@@ -1551,7 +1552,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_user->company_id) {
+            if ($user->companyUser->company_id == $lead->company_id) {
                 if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
                     $old_lead_status = $lead->lead_status->name;
                     $lead->update([
@@ -1679,7 +1680,7 @@ class LeadApiController extends Controller
                 }
 
                 $lead = $media->model;
-                if ($user->companyUser->company_id == $lead->company_user->company_id) {
+                if ($user->companyUser->company_id == $lead->company_id) {
                     $media->delete();
                     return response()->json(['status' => true, 'message' => trans('label.media_deleted_success_msg')], $this->successStatus);
                 } else {
@@ -1925,7 +1926,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->findOrFail($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_user->company_id) {
+            if ($user->companyUser->company_id == $lead->company_id) {
 
                 $leadHistory = new LeadHistory();
                 $leadHistory->lead_id = $lead->id;
