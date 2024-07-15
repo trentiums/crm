@@ -346,10 +346,7 @@ class LeadApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])
-                ->whereHas('company_user', function ($query) use ($user) {
-                    $query->where('company_id', $user->companyUser->company_id);
-            });
+            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->where('company_id', $user->companyUser->company_id);
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
                 $leadConversion->whereDate('leads.created_at', ">=", $userRequest['start_date']);
