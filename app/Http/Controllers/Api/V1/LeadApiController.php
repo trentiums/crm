@@ -631,7 +631,7 @@ class LeadApiController extends Controller
                 ],
                 'budget' => [
                     'nullable',
-                    'string'
+                    'numeric'
                 ],
                 'description' => [
                     'nullable',
@@ -695,9 +695,9 @@ class LeadApiController extends Controller
                 'lead_conversion_id.required' => trans('label.lead_conversion_id_required_error_msg'),
                 'lead_conversion_id.exists' => trans('label.lead_conversion_id_exists_error_msg'),
                 'lead_conversion_id.integer' => trans('label.lead_conversion_id_integer_error_msg'),
-                'budget.string' => trans('label.budget_string_error_msg'),
+                'budget.numeric' => trans('label.budget_string_error_msg'),
                 'description.string' => trans('label.lead_description_string_error_msg'),
-                'deal_amount.integer' => trans('label.lead_deal_amount_integer_error_msg'),
+                'deal_amount.numeric' => trans('label.lead_deal_amount_integer_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
@@ -1023,7 +1023,7 @@ class LeadApiController extends Controller
                 ],
                 'budget' => [
                     'nullable',
-                    'string'
+                    'numeric'
                 ],
                 'description' => [
                     'nullable',
@@ -1087,9 +1087,9 @@ class LeadApiController extends Controller
                 'lead_conversion_id.required' => trans('label.lead_conversion_id_required_error_msg'),
                 'lead_conversion_id.exists' => trans('label.lead_conversion_id_exists_error_msg'),
                 'lead_conversion_id.integer' => trans('label.lead_conversion_id_integer_error_msg'),
-                'budget.string' => trans('label.budget_string_error_msg'),
+                'budget.numeric' => trans('label.budget_string_error_msg'),
                 'description.string' => trans('label.lead_description_string_error_msg'),
-                'deal_amount.integer' => trans('label.lead_deal_amount_integer_error_msg'),
+                'deal_amount.numeric' => trans('label.lead_deal_amount_integer_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
