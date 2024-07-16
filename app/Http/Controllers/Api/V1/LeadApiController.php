@@ -700,7 +700,6 @@ class LeadApiController extends Controller
                 'deal_amount.numeric' => trans('label.lead_deal_amount_integer_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
-                'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
                 'documents.array' => trans('label.documents_array_error_msg')
             ]);
