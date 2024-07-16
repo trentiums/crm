@@ -31,6 +31,7 @@ class Lead extends Model implements HasMedia
 
     protected $casts = [
         'deal_amount' => 'float',
+        'budget' => 'float'
     ];
 
     protected $fillable = [
