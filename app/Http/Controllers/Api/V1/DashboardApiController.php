@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\Auditable;
 use App\Models\Lead;
 use App\Models\LeadConversion;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Traits\Validation;
 use Exception;
@@ -88,19 +89,28 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $response = LeadConversion::select('lead_conversions.id as lead_conversion_id', 'lead_conversions.name', DB::raw('COUNT(tmp.id) AS lead_count'))
-                ->leftJoinSub(
-                    Lead::join('company_users', 'company_users.id', '=', 'leads.company_user_id')
-                        ->where('company_users.company_id', $user->companyUser->company_id)
-                        ->select('leads.*'),
+                $leadQuery = LeadConversion::select('lead_conversions.id as lead_conversion_id', 'lead_conversions.name', DB::raw('COUNT(tmp.id) AS lead_count'));
+                $leadSubQuery = Lead::select('leads.*');
+
+                if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
+                    $leadSubQuery->where('company_id', $user->companyUser->company_id);
+                } else {
+                    $leadSubQuery->where(function ($query) use ($user) {
+                        $query->where('created_by', $user->id)
+                            ->orWhere('assign_from_user_id', $user->id)
+                            ->orWhere('assign_to_user_id', $user->id);
+                    });
+                }
+
+                $response = $leadQuery->leftJoinSub(
+                    $leadSubQuery,
                     'tmp',
                     'tmp.lead_conversion_id',
                     '=',
                     'lead_conversions.id'
-                )
-                ->groupBy('lead_conversions.id', 'lead_conversions.name')
-                ->orderBy('lead_conversion_id','ASC')
-                ->get();
+                )->groupBy('lead_conversions.id', 'lead_conversions.name')
+                 ->orderBy('lead_conversion_id', 'ASC')
+                 ->get();
                 return response()->json(['status' => true, 'data' => $response], $this->successStatus);
             } else {
                 Auditable::log_audit_data('DashboardApiController@lead_stage_count Company not found', null, config('settings.log_type')[1], $userRequest);
@@ -283,16 +293,21 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $leadList = Lead::select('id','name', 'phone', 'email', 'created_at','country_id')->with(['country' => function($query) {
+                $leadList = Lead::select('id', 'name', 'phone', 'email', 'created_at', 'country_id')->with(['country' => function ($query) {
                     $query->select('id', 'dialling_code');
-                }])
-                ->whereHas('company_user', function ($query) use ($user) {
-                    $query->where('company_id', $user->companyUser->company_id);
+                }])->where(function ($query) use ($user) {
+                    if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
+                        $query->where('company_id', $user->companyUser->company_id);
+                    } else {
+                        $query->where('created_by', $user->id)
+                            ->orwhere('assign_from_user_id', $user->id)
+                            ->orwhere('assign_to_user_id', $user->id);
+                    }
                 })->whereHas('lead_status', function ($query) {
                     $query->where('name', 'NEW');
                 })->whereHas('lead_conversion', function ($query) {
                     $query->where('name', 'Initial');
-                })->orderBy('id','DESC')->paginate(10);
+                })->orderBy('id', 'DESC')->paginate(10);
 
                 return response()->json(['status' => true, 'data' => $leadList], $this->successStatus);
             } else {
