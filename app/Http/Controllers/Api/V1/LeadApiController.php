@@ -726,8 +726,8 @@ class LeadApiController extends Controller
 
             if ($companyUser) {
                 $lead = new Lead();
-                $lead->company_user_id = $companyUser->id;
                 $lead->company_id = $companyUser->company_id;
+                $lead->created_by = $user->id;
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
