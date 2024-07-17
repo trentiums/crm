@@ -223,7 +223,6 @@ class ProductServiceApiController extends Controller
             }
             return response()->json(['status' => true, 'message' => trans('label.product_saved_success_message')], $this->successStatus);
         } catch (Exception $ex) {
-            dd($ex);
             Auditable::log_audit_data('ProductServiceApiController@save_product_services Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
