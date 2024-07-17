@@ -94,8 +94,7 @@ class ProductServiceApiController extends Controller
                 return $validationResponse;
             }
 
-            $leadConversion = ProductService::join('company_users', 'company_users.id', "=", "product_services.company_user_id")
-                ->where("company_users.company_id", "=", $user->companyUser->company_id)
+            $leadConversion = ProductService::where("company_id", "=", $user->companyUser->company_id)
                 ->select(['product_services.name', 'product_services.description', 'product_services.id'])
                 ->paginate(10);
 
@@ -208,11 +207,10 @@ class ProductServiceApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $userRequest['company_user_id'] = $companyUser->id;
+            $userRequest['company_id'] = $companyUser->company_id;
+            $userRequest['user_id']    = $user->id;
 
-            $check = ProductService::whereHas('companyUser', function ($query) use ($companyUser) {
-                $query->where('company_id', $companyUser->company_id);
-            })->where('name', $userRequest['name'])->first();
+            $check = ProductService::where('company_id', $companyUser->company_id)->where('name', $userRequest['name'])->first();
 
             if (!empty($check)) {
                 Auditable::log_audit_data('ProductServiceApiController@save_product_services already exists', null, config('settings.log_type')[1], $userRequest);
@@ -225,6 +223,7 @@ class ProductServiceApiController extends Controller
             }
             return response()->json(['status' => true, 'message' => trans('label.product_saved_success_message')], $this->successStatus);
         } catch (Exception $ex) {
+            dd($ex);
             Auditable::log_audit_data('ProductServiceApiController@save_product_services Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
@@ -317,9 +316,7 @@ class ProductServiceApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
-                $query->where('company_id', $getCompany->company_id);
-            })->where('id', $userRequest['product_service_id'])->first();
+            $productService = ProductService::where('company_id', $getCompany->company_id)->where('id', $userRequest['product_service_id'])->first();
 
             return response()->json(['status' => true, 'data' => $productService], $this->successStatus);
         } catch (Exception $ex) {
@@ -446,9 +443,7 @@ class ProductServiceApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $check = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
-                $query->where('company_id', $getCompany->company_id);
-            })->where('name', $userRequest['name'])->whereNot('id', $userRequest['product_service_id'])->first();
+            $check = ProductService::where('company_id', $getCompany->company_id)->where('name', $userRequest['name'])->whereNot('id', $userRequest['product_service_id'])->first();
 
             if (!empty($check)) {
                 Auditable::log_audit_data('ProductServiceApiController@save_product_services already exists', null, config('settings.log_type')[1], $userRequest);
@@ -555,9 +550,7 @@ class ProductServiceApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $productService = ProductService::whereHas('companyUser', function ($query) use ($getCompany) {
-                $query->where('company_id', $getCompany->company_id);
-            })->where('id', $userRequest['product_service_id'])->first();
+            $productService = ProductService::where('company_id', $getCompany->company_id)->where('id', $userRequest['product_service_id'])->first();
 
             if ($productService) {
                 if(count($productService->leads)>0){
