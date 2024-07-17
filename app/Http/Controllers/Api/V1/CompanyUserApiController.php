@@ -741,34 +741,18 @@ class CompanyUserApiController extends Controller
      *             {
      *                 "id": 2,
      *                 "name": "Trentium Solution Private Limited",
-     *                 "email": "info@trentiums.com",
-     *                 "email_verified_at": null,
-     *                 "user_role": 2,
-     *                 "created_at": "2024-06-04T10:07:02.000000Z"
      *             },
      *             {
      *                 "id": 3,
      *                 "name": "Demo12",
-     *                 "email": "demo@gmail.com",
-     *                 "email_verified_at": null,
-     *                 "user_role": 3,
-     *                 "created_at": "2024-06-11T11:51:36.000000Z"
      *             },
      *             {
      *                 "id": 5,
      *                 "name": "Demo",
-     *                 "email": "testing@gmail.com",
-     *                 "email_verified_at": "2024-06-14 06:17:06",
-     *                 "user_role": 3,
-     *                 "created_at": "2024-06-14T06:17:06.000000Z"
      *             },
      *             {
      *                 "id": 7,
      *                 "name": "Demo1",
-     *                 "email": "testing23@gmail.com",
-     *                 "email_verified_at": null,
-     *                 "user_role": 3,
-     *                 "created_at": "2024-07-15T11:01:38.000000Z"
      *             }
      *         ]
      *     }
@@ -788,7 +772,7 @@ class CompanyUserApiController extends Controller
                 $companyUser = CompanyUser::join('users', "users.id", "=", "company_users.user_id")
                     ->join('companies', "companies.id", "=", "company_users.company_id")
                     ->where("company_id", "=", $user->companyUser->company_id)
-                    ->select(['users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.user_role', 'users.created_at'])
+                    ->select(['users.id', 'users.name'])
                     ->get();
                 return response()->json(['status' => true, 'data' => $companyUser], $this->successStatus);
             } else {
