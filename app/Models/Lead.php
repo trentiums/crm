@@ -35,7 +35,7 @@ class Lead extends Model implements HasMedia
     ];
 
     protected $fillable = [
-        'company_user_id',
+        'company_id',
         'name',
         'email',
         'phone',
@@ -51,6 +51,9 @@ class Lead extends Model implements HasMedia
         'deal_amount',
         'win_close_reason',
         'deal_close_date',
+        'created_by',
+        'assign_from_user_id',
+        'assign_to_user_id',
         'created_at',
         'updated_at',
         'deleted_at',
