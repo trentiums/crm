@@ -28,7 +28,8 @@ class ProductService extends Model implements HasMedia
     ];
 
     protected $fillable = [
-        'company_user_id',
+        'company_id',
+        'user_id',
         'name',
         'description',
         'created_at',
