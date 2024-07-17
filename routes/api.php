@@ -22,6 +22,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::post('update-lead-status', 'LeadApiController@update_lead_status');
         Route::post('delete-lead-document', 'LeadApiController@delete_lead_document');
         Route::get('lead-details', 'LeadApiController@lead_details');
+        Route::post('assign-lead', 'LeadApiController@assign_lead');
 
         // Company
         //Route::post('companies/media', 'CompanyApiController@storeMedia')->name('companies.storeMedia');
@@ -53,6 +54,7 @@ Route::group(['prefix' => 'v1', 'as' => 'api.', 'namespace' => 'Api\V1'], functi
         Route::post('update-company-user', 'CompanyUserApiController@update_company_user');
         Route::post('delete-company-user', 'CompanyUserApiController@delete_company_user');
         Route::get('company-user-details', 'CompanyUserApiController@company_user_details');
+        Route::get('assign-company-user-list', 'CompanyUserApiController@assign_company_user_list');
 
         // Dashboard
         Route::get('lead-stage-count', 'DashboardApiController@lead_stage_count');

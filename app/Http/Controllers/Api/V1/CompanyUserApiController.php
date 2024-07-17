@@ -249,7 +249,7 @@ class CompanyUserApiController extends Controller
             $fields['name'] = [
                 'required',
                 'string',
-                'unique_user_name:'.$user->companyUser->company_id
+                'unique_user_name:' . $user->companyUser->company_id
             ];
 
             $error = Validator::make($request->all(), $fields, [
@@ -420,7 +420,7 @@ class CompanyUserApiController extends Controller
             $fields['name'] = [
                 'required',
                 'string',
-                'unique_user_name:'.$user->companyUser->company_id.','.$userRequest['user_id']
+                'unique_user_name:' . $user->companyUser->company_id . ',' . $userRequest['user_id']
             ];
 
             $error = Validator::make($request->all(), $fields, [
@@ -703,6 +703,84 @@ class CompanyUserApiController extends Controller
             }
         } catch (Exception $ex) {
             Auditable::log_audit_data('CompanyUserApiController@company_user_details Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
+        }
+    }
+
+    /**
+     * @api {get} /api/v1/assign-company-user-list Assign Company User List
+     * @apiSampleRequest off
+     * @apiName Company
+     * @apiGroup Assign Company User List
+     * @apiVersion 1.0.0
+     *
+     * @apiDescription <span class="type type__post">Assign Company User List API</span>
+     *
+     *   API request content-type [{"key":"Content-Type","value":"application/json"}]
+     *
+     *   Authorization is based on token shared while login
+     *
+     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     *
+     *   @apiHeaderExample {json} Header-Example:
+     *     {
+     *       "Authorization": "Bearer XXXXXXXXXX"
+     *     }
+     *
+     * @apiSuccess {Boolean}   status                               Response successful or not
+     * @apiSuccess {Array}    data                                  Assign Company User List
+     *
+     * @apiExample {curl} Example usage:
+     *       curl -i https://crm.trentiums.com/api/v1/assign-company-user-list
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *         "status": true,
+     *         "data": [
+     *             {
+     *                 "id": 2,
+     *                 "name": "Trentium Solution Private Limited",
+     *             },
+     *             {
+     *                 "id": 3,
+     *                 "name": "Demo12",
+     *             },
+     *             {
+     *                 "id": 5,
+     *                 "name": "Demo",
+     *             },
+     *             {
+     *                 "id": 7,
+     *                 "name": "Demo1",
+     *             }
+     *         ]
+     *     }
+     *
+     *     HTTP/1.1 200 Bad Request
+     *     {
+     *       "status": false,
+     *       "message": "Something wen't wrong please try again"
+     *     }
+     */
+    public function assign_company_user_list(Request $request)
+    {
+        try {
+            $userRequest = $request->all();
+            $user = $request->user();
+            if (isset($user->companyUser->company_id) && !empty($user->companyUser->company_id)) {
+                $companyUser = CompanyUser::join('users', "users.id", "=", "company_users.user_id")
+                    ->join('companies', "companies.id", "=", "company_users.company_id")
+                    ->where("company_id", "=", $user->companyUser->company_id)
+                    ->select(['users.id', 'users.name'])
+                    ->get();
+                return response()->json(['status' => true, 'data' => $companyUser], $this->successStatus);
+            } else {
+                Auditable::log_audit_data('CompanyUserApiController@assign_company_user_list Company not found', null, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+        } catch (Exception $ex) {
+            Auditable::log_audit_data('CompanyUserApiController@assign_company_user_list Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }

@@ -341,12 +341,20 @@ class LeadApiController extends Controller
                 return $validationResponse;
             }
 
-            if(empty($user->companyUser)){
+            if (empty($user->companyUser)) {
                 Auditable::log_audit_data('ProductServiceApiController@lead_list Exception', $user, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->where('company_id', $user->companyUser->company_id);
+            $leadConversion = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion']);
+
+            if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
+                $leadConversion->where('company_id', $user->companyUser->company_id);
+            } else {
+                $leadConversion->where('created_by', $user->id)
+                    ->orwhere('assign_from_user_id', $user->id)
+                    ->orwhere('assign_to_user_id', $user->id);
+            }
 
             if (isset($userRequest['start_date']) && !empty($userRequest['start_date']) && isset($userRequest['end_date']) && !empty($userRequest['end_date'])) {
                 $leadConversion->whereDate('leads.created_at', ">=", $userRequest['start_date']);
@@ -383,7 +391,7 @@ class LeadApiController extends Controller
                 }
                 $leadConversion->orderBy($order_by, Lead::ORDER[$userRequest['sort_order']]);
             } else {
-                $leadConversion->orderBy('id','DESC');
+                $leadConversion->orderBy('id', 'DESC');
             }
 
             $leadConversion = $leadConversion->paginate(10);
@@ -700,6 +708,7 @@ class LeadApiController extends Controller
                 'deal_amount.numeric' => trans('label.lead_deal_amount_integer_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'time_line.string' => trans('label.time_line_string_error_msg'),
+                'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
                 'documents.array' => trans('label.documents_array_error_msg')
             ]);
@@ -1236,7 +1245,7 @@ class LeadApiController extends Controller
                 ]);
             }
 
-            if ($user->companyUser->company_id == $lead->company_id) {
+            if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
                 $lead->name = $userRequest['name'];
                 $lead->phone = $userRequest['phone'] ?? null;
                 $lead->email = $userRequest['email'] ?? null;
@@ -1256,7 +1265,10 @@ class LeadApiController extends Controller
                 $lead->save();
 
                 LeadHistory::insert($leadHistory);
-                if (isset($userRequest['product_services']) && !empty($userRequest['product_services']) && !empty(array_diff($userRequest['product_services'], array_map('strval', $lead->product_services->pluck('id')->toArray())))) {
+
+                $diff1 = array_diff($userRequest['product_services'], array_map('strval', $lead->product_services->pluck('id')->toArray()));
+                $diff2 = array_diff(array_map('strval', $lead->product_services->pluck('id')->toArray()), $userRequest['product_services']);
+                if (isset($userRequest['product_services']) && !empty(array_merge($diff1, $diff2))) {
                     $lead->product_services()->detach();
                     $arrData = [];
                     foreach ($userRequest['product_services'] as $keyProduct => $valueProduct) {
@@ -1382,7 +1394,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_id) {
+            if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && $lead->created_by == $user->id)) {
                 $lead->product_services()->detach();
                 if (!empty($lead->documents)) {
                     foreach ($lead->documents as $document) {
@@ -1548,7 +1560,7 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::find($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_id) {
+            if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
                 if ($userRequest['type'] == array_flip(Lead::STATUS_UPDATE_TYPE)['status']) {
                     $old_lead_status = $lead->lead_status->name;
                     $lead->update([
@@ -1676,14 +1688,14 @@ class LeadApiController extends Controller
                 }
 
                 $lead = $media->model;
-                if ($user->companyUser->company_id == $lead->company_id) {
+                if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
                     $media->delete();
                     return response()->json(['status' => true, 'message' => trans('label.media_deleted_success_msg')], $this->successStatus);
                 } else {
                     Auditable::log_audit_data('LeadApiController@delete_lead_document Exception', $user, config('settings.log_type')[1], $userRequest);
                     return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
                 }
-            } else{
+            } else {
                 Auditable::log_audit_data('LeadApiController@delete_lead_document Exception', $user, config('settings.log_type')[1], $userRequest);
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
@@ -1736,152 +1748,152 @@ class LeadApiController extends Controller
      *     HTTP/1.1 200 OK
      *      {
      *          "status": true,
-    *            "data": {
-    *               "id": 3,
-    *               "company_user_id": 1,
-    *               "name": "Bhargav",
-    *               "email": "bhargav960143@gmail.com",
-    *               "phone": "9662062016",
-    *               "company_name": "Trentium",
-    *               "company_size": "30",
-    *               "company_website": "https://www.trentiums.com",
-    *               "budget": "1500 INR",
-    *               "time_line": "2 Hours",
-    *               "description": "Banner development",
-    *               "deal_amount": 1200,
-    *               "win_close_reason": null,
-    *               "deal_close_date": "2024-06-18",
-    *               "created_at": "2024-06-19 07:24:43",
-    *               "updated_at": "2024-06-26 11:10:52",
-    *               "deleted_at": null,
-    *               "lead_status_id": 2,
-    *               "lead_channel_id": 1,
-    *               "lead_conversion_id": 3,
-    *               "country_id": null,
-    *               "documents": [],
-    *               "lead_status": {
-    *                   "id": 2,
-    *                   "name": "Contacted",
-    *                   "created_at": "2024-06-04 10:04:45",
-    *                   "updated_at": "2024-06-04 10:04:45",
-    *                   "deleted_at": null
-    *               },
-    *               "lead_channel": {
-    *                   "id": 1,
-    *                   "name": "Website Forms",
-    *                   "created_at": "2024-06-04 10:02:53",
-    *                   "updated_at": "2024-06-04 10:02:53",
-    *                   "deleted_at": null
-    *               },
-    *               "product_services": [
-    *                   {
-    *                       "id": 1,
-    *                       "company_user_id": 1,
-    *                       "name": "sdgsdg123",
-    *                       "description": "etwerweyt",
-    *                       "created_at": "2024-06-11 11:33:24",
-    *                       "updated_at": "2024-06-19 07:43:32",
-    *                       "deleted_at": null,
-    *                       "documents": null,
-    *                       "pivot": {
-    *                           "lead_id": 3,
-    *                           "product_service_id": 1
-    *                       },
-    *                       "media": []
-    *                   },
-    *                   {
-    *                       "id": 2,
-    *                       "company_user_id": 3,
-    *                       "name": "sdgsdg12",
-    *                       "description": "etwerweyt",
-    *                       "created_at": "2024-06-18 06:26:25",
-    *                       "updated_at": "2024-06-19 07:43:32",
-    *                       "deleted_at": null,
-    *                       "documents": {
-    *                           "id": 10,
-    *                           "model_type": "App\\Models\\ProductService",
-    *                           "model_id": 2,
-    *                           "uuid": "90a1f490-1bc6-4370-9bb1-e9ec1b533810",
-    *                           "collection_name": "documents",
-    *                           "name": "user-form",
-    *                           "file_name": "user-form.png",
-    *                           "mime_type": "image/png",
-    *                           "disk": "public",
-    *                           "conversions_disk": "public",
-    *                           "size": 9013,
-    *                           "manipulations": [],
-    *                           "custom_properties": [],
-    *                           "generated_conversions": {
-    *                               "thumb": true,
-    *                               "preview": true
-    *                           },
-    *                           "responsive_images": [],
-    *                           "order_column": 1,
-    *                           "created_at": "2024-06-19T06:08:17.000000Z",
-    *                           "updated_at": "2024-06-19T06:08:18.000000Z",
-    *                           "original_url": "http://127.0.0.1:8000/storage/10/user-form.png",
-    *                           "preview_url": "http://127.0.0.1:8000/storage/10/conversions/user-form-preview.jpg"
-    *                       },
-    *                       "pivot": {
-    *                           "lead_id": 3,
-    *                           "product_service_id": 2
-    *                       },
-    *                       "media": [
-    *                           {
-    *                               "id": 10,
-    *                               "model_type": "App\\Models\\ProductService",
-    *                               "model_id": 2,
-    *                               "uuid": "90a1f490-1bc6-4370-9bb1-e9ec1b533810",
-    *                               "collection_name": "documents",
-    *                               "name": "user-form",
-    *                               "file_name": "user-form.png",
-    *                               "mime_type": "image/png",
-    *                               "disk": "public",
-    *                               "conversions_disk": "public",
-    *                               "size": 9013,
-    *                               "manipulations": [],
-    *                               "custom_properties": [],
-    *                               "generated_conversions": {
-    *                                   "thumb": true,
-    *                                   "preview": true
-    *                               },
-    *                               "responsive_images": [],
-    *                               "order_column": 1,
-    *                               "created_at": "2024-06-19T06:08:17.000000Z",
-    *                               "updated_at": "2024-06-19T06:08:18.000000Z",
-    *                               "original_url": "http://127.0.0.1:8000/storage/10/user-form.png",
-    *                               "preview_url": "http://127.0.0.1:8000/storage/10/conversions/user-form-preview.jpg"
-    *                           }
-    *                       ]
-    *                   }
-    *               ],
-    *               "lead_conversion": {
-    *                   "id": 3,
-    *                   "name": "Negotiation",
-    *                   "created_at": "2024-06-04 10:05:47",
-    *                   "updated_at": "2024-06-04 10:05:47",
-    *                   "deleted_at": null
-    *               },
-    *               "company_user": {
-    *                   "id": 1,
-    *                   "created_at": "2024-06-04 15:47:00",
-    *                   "updated_at": "2024-06-27 06:33:12",
-    *                   "deleted_at": null,
-    *                   "company_id": 1,
-    *                   "user_id": 2,
-    *                   "user": {
-    *                       "id": 2,
-    *                       "name": "Trentium Solution Private Limited",
-    *                       "email": "info@trentiums.com",
-    *                       "email_verified_at": null,
-    *                       "user_role": 2,
-    *                       "created_at": "2024-06-04 10:07:02",
-    *                       "updated_at": "2024-06-27 06:33:12",
-    *                       "deleted_at": null
-    *                   }
-    *               },
-    *               "media": []
-    *            }
+     *            "data": {
+     *               "id": 3,
+     *               "company_user_id": 1,
+     *               "name": "Bhargav",
+     *               "email": "bhargav960143@gmail.com",
+     *               "phone": "9662062016",
+     *               "company_name": "Trentium",
+     *               "company_size": "30",
+     *               "company_website": "https://www.trentiums.com",
+     *               "budget": "1500 INR",
+     *               "time_line": "2 Hours",
+     *               "description": "Banner development",
+     *               "deal_amount": 1200,
+     *               "win_close_reason": null,
+     *               "deal_close_date": "2024-06-18",
+     *               "created_at": "2024-06-19 07:24:43",
+     *               "updated_at": "2024-06-26 11:10:52",
+     *               "deleted_at": null,
+     *               "lead_status_id": 2,
+     *               "lead_channel_id": 1,
+     *               "lead_conversion_id": 3,
+     *               "country_id": null,
+     *               "documents": [],
+     *               "lead_status": {
+     *                   "id": 2,
+     *                   "name": "Contacted",
+     *                   "created_at": "2024-06-04 10:04:45",
+     *                   "updated_at": "2024-06-04 10:04:45",
+     *                   "deleted_at": null
+     *               },
+     *               "lead_channel": {
+     *                   "id": 1,
+     *                   "name": "Website Forms",
+     *                   "created_at": "2024-06-04 10:02:53",
+     *                   "updated_at": "2024-06-04 10:02:53",
+     *                   "deleted_at": null
+     *               },
+     *               "product_services": [
+     *                   {
+     *                       "id": 1,
+     *                       "company_user_id": 1,
+     *                       "name": "sdgsdg123",
+     *                       "description": "etwerweyt",
+     *                       "created_at": "2024-06-11 11:33:24",
+     *                       "updated_at": "2024-06-19 07:43:32",
+     *                       "deleted_at": null,
+     *                       "documents": null,
+     *                       "pivot": {
+     *                           "lead_id": 3,
+     *                           "product_service_id": 1
+     *                       },
+     *                       "media": []
+     *                   },
+     *                   {
+     *                       "id": 2,
+     *                       "company_user_id": 3,
+     *                       "name": "sdgsdg12",
+     *                       "description": "etwerweyt",
+     *                       "created_at": "2024-06-18 06:26:25",
+     *                       "updated_at": "2024-06-19 07:43:32",
+     *                       "deleted_at": null,
+     *                       "documents": {
+     *                           "id": 10,
+     *                           "model_type": "App\\Models\\ProductService",
+     *                           "model_id": 2,
+     *                           "uuid": "90a1f490-1bc6-4370-9bb1-e9ec1b533810",
+     *                           "collection_name": "documents",
+     *                           "name": "user-form",
+     *                           "file_name": "user-form.png",
+     *                           "mime_type": "image/png",
+     *                           "disk": "public",
+     *                           "conversions_disk": "public",
+     *                           "size": 9013,
+     *                           "manipulations": [],
+     *                           "custom_properties": [],
+     *                           "generated_conversions": {
+     *                               "thumb": true,
+     *                               "preview": true
+     *                           },
+     *                           "responsive_images": [],
+     *                           "order_column": 1,
+     *                           "created_at": "2024-06-19T06:08:17.000000Z",
+     *                           "updated_at": "2024-06-19T06:08:18.000000Z",
+     *                           "original_url": "http://127.0.0.1:8000/storage/10/user-form.png",
+     *                           "preview_url": "http://127.0.0.1:8000/storage/10/conversions/user-form-preview.jpg"
+     *                       },
+     *                       "pivot": {
+     *                           "lead_id": 3,
+     *                           "product_service_id": 2
+     *                       },
+     *                       "media": [
+     *                           {
+     *                               "id": 10,
+     *                               "model_type": "App\\Models\\ProductService",
+     *                               "model_id": 2,
+     *                               "uuid": "90a1f490-1bc6-4370-9bb1-e9ec1b533810",
+     *                               "collection_name": "documents",
+     *                               "name": "user-form",
+     *                               "file_name": "user-form.png",
+     *                               "mime_type": "image/png",
+     *                               "disk": "public",
+     *                               "conversions_disk": "public",
+     *                               "size": 9013,
+     *                               "manipulations": [],
+     *                               "custom_properties": [],
+     *                               "generated_conversions": {
+     *                                   "thumb": true,
+     *                                   "preview": true
+     *                               },
+     *                               "responsive_images": [],
+     *                               "order_column": 1,
+     *                               "created_at": "2024-06-19T06:08:17.000000Z",
+     *                               "updated_at": "2024-06-19T06:08:18.000000Z",
+     *                               "original_url": "http://127.0.0.1:8000/storage/10/user-form.png",
+     *                               "preview_url": "http://127.0.0.1:8000/storage/10/conversions/user-form-preview.jpg"
+     *                           }
+     *                       ]
+     *                   }
+     *               ],
+     *               "lead_conversion": {
+     *                   "id": 3,
+     *                   "name": "Negotiation",
+     *                   "created_at": "2024-06-04 10:05:47",
+     *                   "updated_at": "2024-06-04 10:05:47",
+     *                   "deleted_at": null
+     *               },
+     *               "company_user": {
+     *                   "id": 1,
+     *                   "created_at": "2024-06-04 15:47:00",
+     *                   "updated_at": "2024-06-27 06:33:12",
+     *                   "deleted_at": null,
+     *                   "company_id": 1,
+     *                   "user_id": 2,
+     *                   "user": {
+     *                       "id": 2,
+     *                       "name": "Trentium Solution Private Limited",
+     *                       "email": "info@trentiums.com",
+     *                       "email_verified_at": null,
+     *                       "user_role": 2,
+     *                       "created_at": "2024-06-04 10:07:02",
+     *                       "updated_at": "2024-06-27 06:33:12",
+     *                       "deleted_at": null
+     *                   }
+     *               },
+     *               "media": []
+     *            }
      *      }
      *
      *     HTTP/1.1 200 Bad Request
@@ -1922,12 +1934,12 @@ class LeadApiController extends Controller
             }
 
             $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->findOrFail($userRequest['lead_id']);
-            if ($user->companyUser->company_id == $lead->company_id) {
+            if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
 
                 $leadHistory = new LeadHistory();
                 $leadHistory->lead_id = $lead->id;
                 $leadHistory->company_user_id = $companyUser->id;
-                $leadHistory->description = $user->name.' show lead '.$lead->id;
+                $leadHistory->description = $user->name . ' show lead ' . $lead->id;
                 $leadHistory->created_at = date("Y-m-d H:i:s");
                 $leadHistory->save();
 
@@ -1938,6 +1950,128 @@ class LeadApiController extends Controller
             }
         } catch (Exception $ex) {
             Auditable::log_audit_data('LeadApiController@lead_details Exception', null, config('settings.log_type')[0], $ex->getMessage());
+            return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
+        }
+    }
+
+    /**
+     * @api {get} /api/v1/assign-lead Assign Lead
+     * @apiSampleRequest off
+     * @apiName Assign Lead
+     * @apiGroup Lead
+     * @apiVersion 1.0.0
+     *
+     * @apiDescription <span class="type type__get">Assign Lead API</span>
+     *
+     *   API request content-type [{"key":"Content-Type","value":"application/json"}]
+     *
+     *   Authorization is based on token shared while login
+     *
+     *   @apiHeader {String} authorization (Bearer Token) Authorization value.
+     *
+     *   @apiHeaderExample {json} Header-Example:
+     *     {
+     *       "Authorization": "Bearer XXXXXXXXXX"
+     *     }
+     *
+     *  @apiParam {Integer}     lead_id     Lead Id
+     *
+     *    Validate `lead_id` is required
+     *
+     *    Validate `lead_id` is integer
+     *
+     *    Validate `lead_id` is exists or not
+     *
+     *  @apiParam {Integer}     assign_user_id     Assign User Id
+     *
+     *    Validate `assign_user_id` is required
+     *
+     *    Validate `assign_user_id` is integer
+     *
+     *    Validate `assign_user_id` is exists or not
+     *
+     * @apiParamExample {Json} Request-Example:
+     *    {
+     *          "lead_id": 1,
+     *          "assign_to_user_id": 3
+     *    }
+     *
+     * @apiSuccess {Boolean}   status                               Response successful or not
+     * @apiSuccess {String}    message                              Message for error & success
+     *
+     * @apiExample {curl} Example usage:
+     *       curl -i https://crm.trentiums.com/api/v1/assign-lead
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+     *          "status": true,
+     *          "message": "Lead assigned successfully."
+     *      }
+     *
+     *     HTTP/1.1 200 Bad Request
+     *     {
+     *          "status": false,
+     *          "message": "Something wen't wrong please try again"
+     *     }
+     */
+    public function assign_lead(Request $request)
+    {
+        try {
+            $userRequest = $request->all();
+            $user = $request->user();
+            $fields = [
+                'lead_id' => [
+                    'required',
+                    'integer',
+                    'exists:leads,id,deleted_at,NULL'
+                ],
+                'assign_to_user_id' => [
+                    'required',
+                    'integer',
+                    'exists:users,id,deleted_at,NULL'
+                ],
+            ];
+
+            $error = Validator::make($userRequest, $fields, [
+                'lead_id.required' => trans('label.lead_id_required_error_msg'),
+                'lead_id.integer' => trans('label.lead_id_integer_error_msg'),
+                'lead_id.exists' => trans('label.lead_id_exists_error_msg'),
+                'assign_to_user_id.required' => trans('label.user_id_required_error_msg'),
+                'assign_to_user_id.integer' => trans('label.user_id_integer_error_msg'),
+                'assign_to_user_id.exists' => trans('label.user_id_exists_error_msg'),
+            ]);
+
+            $validationResponse = $this->check_validation($fields, $error, 'Delete Lead');
+            if (!$validationResponse->getData()->status) {
+                return $validationResponse;
+            }
+
+            $companyUser = CompanyUser::where("user_id", "=", $user->id)->first();
+
+            if (empty($companyUser)) {
+                Auditable::log_audit_data('ProductServiceApiController@assign_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+
+            $lead = Lead::findOrFail($userRequest['lead_id']);
+            if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
+                if($lead->assign_to_user_id == $userRequest['assign_to_user_id']){
+                    Auditable::log_audit_data('ProductServiceApiController@assign_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                    return response()->json(['status' => false, 'message' => trans('label.lead_already_assigned')], $this->successStatus);
+                } else {
+                    $lead->update([
+                        'assign_from_user_id' => $user->id,
+                        'assign_to_user_id' => $userRequest['assign_to_user_id']
+                    ]);
+                    return response()->json(['status' => true, 'message' => trans('label.lead_assign_success_msg')], $this->successStatus);
+                }
+            } else {
+                Auditable::log_audit_data('ProductServiceApiController@assign_lead Exception', $user, config('settings.log_type')[1], $userRequest);
+                return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
+            }
+        } catch (Exception $ex) {
+            Auditable::log_audit_data('LeadApiController@assign_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
     }

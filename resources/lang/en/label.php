@@ -80,6 +80,7 @@ return [
     'lead_insert_success_msg'                         => 'Lead saved successfully.',
     'lead_update_success_msg'                         => 'Lead updated successfully.',
     'lead_delete_success_msg'                         => 'Lead deleted successfully.',
+    'lead_assign_success_msg'                         => 'Lead assigned successfully.',
     'lead_status_update_success_msg'                  => 'Lead status updated successfully.',
     'product_service_already_exist_error_message'     => 'Product/Service already exist with same name, please try again.',
     'unable_to_create_user_error_msg'                 => 'Unable to create new user, please try again.',
@@ -92,5 +93,6 @@ return [
     'user_id_exists_error_msg'                        => 'Invalid User Id',
     'documents_array_error_msg'                       => 'Invalid documents',
     'media_deleted_success_msg'                       => 'Media deleted successfully',
-    'user_name_unique_error_msg'                      => 'Provided username already in use, please try again.'
+    'user_name_unique_error_msg'                      => 'Provided username already in use, please try again.',
+    'lead_already_assigned'                           => 'Lead already assigned to this user'
 ];
