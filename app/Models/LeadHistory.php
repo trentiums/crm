@@ -22,7 +22,10 @@ class LeadHistory extends Model
 
     protected $fillable = [
         'lead_id',
-        'company_user_id',
+        'company_id',
+        'user_id',
+        'old_lead',
+        'new_lead',
         'description',
         'created_at',
         'updated_at',
@@ -39,8 +42,4 @@ class LeadHistory extends Model
         return $this->belongsTo(Lead::class);
     }
 
-    public function companyUser()
-    {
-        return $this->belongsTo(CompanyUser::class);
-    }
 }

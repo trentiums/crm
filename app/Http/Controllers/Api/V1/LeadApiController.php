@@ -780,11 +780,13 @@ class LeadApiController extends Controller
                     }
                 }
 
+                //save history
                 $leadHistory = new LeadHistory();
                 $leadHistory->lead_id = $lead->id;
-                $leadHistory->company_user_id = $companyUser->id;
+                $leadHistory->company_id = $companyUser->company_id;
+                $leadHistory->user_id = $user->id;
                 $leadHistory->description = "Lead Created";
-                $leadHistory->created_at = date("Y-m-d H:i:s");
+                $leadHistory->new_lead = json_encode($lead,true);
                 $leadHistory->save();
 
                 return response()->json(['status' => true, 'message' => trans('label.lead_insert_success_msg')], $this->successStatus);
@@ -1157,135 +1159,7 @@ class LeadApiController extends Controller
 
             $lead = Lead::find($userRequest['lead_id']);
 
-            $leadHistory = [];
-            if ($lead->name != $userRequest['name']) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead name updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->phone != $request->phone) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead phone updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->email != $request->email) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead email updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->company_name != $request->company_name) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead company name updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->company_size != $request->company_size) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead company size updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->company_website != $request->company_website) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead company website updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->budget != $request->budget) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead budget updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->time_line != $request->time_line) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead time line updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->description != $request->description) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead description updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->deal_amount != $request->deal_amount) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead deal amount updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->win_close_reason != $request->win_close_reason) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead win close reason updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->deal_close_date != $request->deal_close_date) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead deal close date updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->lead_status_id != $userRequest['lead_status_id']) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead status updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->lead_channel_id != $userRequest['lead_channel_id']) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead channel updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->lead_conversion_id != $userRequest['lead_conversion_id']) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Lead conversion updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
-            if ($lead->assign_to_user_id != $userRequest['assign_to_user_id']) {
-                array_push($leadHistory, [
-                    'lead_id' => $lead->id,
-                    'company_user_id' => $companyUser->id,
-                    'description' => 'Assign User Updated',
-                    'created_at' => date("Y-m-d H:i:s")
-                ]);
-            }
+            $oldLead = $lead;
 
             if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
                 $lead->name = $userRequest['name'];
@@ -1308,8 +1182,6 @@ class LeadApiController extends Controller
                 $lead->assign_to_user_id = $userRequest['assign_to_user_id'] ?? null;
                 $lead->save();
 
-                LeadHistory::insert($leadHistory);
-
                 $diff1 = array_diff($userRequest['product_services'], array_map('strval', $lead->product_services->pluck('id')->toArray()));
                 $diff2 = array_diff(array_map('strval', $lead->product_services->pluck('id')->toArray()), $userRequest['product_services']);
                 if (isset($userRequest['product_services']) && !empty(array_merge($diff1, $diff2))) {
@@ -1321,13 +1193,6 @@ class LeadApiController extends Controller
                     }
 
                     LeadProductService::insert($arrData);
-
-                    $leadHistory = new LeadHistory();
-                    $leadHistory->lead_id = $lead->id;
-                    $leadHistory->company_user_id = $companyUser->id;
-                    $leadHistory->description = 'Lead product services updated';
-                    $leadHistory->created_at = date("Y-m-d H:i:s");
-                    $leadHistory->save();
                 }
 
                 if ($request->file('documents')) {
@@ -1342,6 +1207,16 @@ class LeadApiController extends Controller
                     $leadHistory->created_at = date("Y-m-d H:i:s");
                     $leadHistory->save();
                 }
+
+                //save history
+                $leadHistory = new LeadHistory();
+                $leadHistory->lead_id = $lead->id;
+                $leadHistory->company_id = $companyUser->company_id;
+                $leadHistory->user_id = $user->id;
+                $leadHistory->description = "Lead Updated";
+                $leadHistory->new_lead = json_encode($lead,true);
+                $leadHistory->old_lead = json_encode($oldLead,true);
+                $leadHistory->save();
 
                 return response()->json(['status' => true, 'message' => trans('label.lead_update_success_msg')], $this->successStatus);
             } else {
