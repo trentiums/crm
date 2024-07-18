@@ -524,13 +524,13 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
-     *  @apiParam {Integer}     [assign_user_id]     Assign User Id
+     *  @apiParam {Integer}     [assign_to_user_id]     Assign User Id
      *
-     *    Validate `assign_user_id` is nullable
+     *    Validate `assign_to_user_id` is nullable
      *
-     *    Validate `assign_user_id` is integer
+     *    Validate `assign_to_user_id` is integer
      *
-     *    Validate `assign_user_id` is exists or not
+     *    Validate `assign_to_user_id` is exists or not
      *
      * @apiParam {array}   [documents]    Document
      *
@@ -561,7 +561,7 @@ class LeadApiController extends Controller
      *    "deal_amount": "1200",
      *    "win_close_reason": "",
      *    "deal_close_date": "2024-06-18",
-     *    "assign_user_id": 2
+     *    "assign_to_user_id": 2
      *    "documents" : "Demo.jpg"
      *    }
      *
@@ -927,13 +927,13 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
-     * @apiParam {Integer}     [assign_user_id]     Assign User Id
+     * @apiParam {Integer}     [assign_to_user_id]     Assign User Id
      *
-     *    Validate `assign_user_id` is nullable
+     *    Validate `assign_to_user_id` is nullable
      *
-     *    Validate `assign_user_id` is integer
+     *    Validate `assign_to_user_id` is integer
      *
-     *    Validate `assign_user_id` is exists or not
+     *    Validate `assign_to_user_id` is exists or not
      *
      * @apiParam {array}   [documents]    Document
      *
@@ -2026,13 +2026,13 @@ class LeadApiController extends Controller
      *
      *    Validate `lead_id` is exists or not
      *
-     *  @apiParam {Integer}     assign_user_id     Assign User Id
+     *  @apiParam {Integer}     assign_to_user_id     Assign User Id
      *
-     *    Validate `assign_user_id` is required
+     *    Validate `assign_to_user_id` is required
      *
-     *    Validate `assign_user_id` is integer
+     *    Validate `assign_to_user_id` is integer
      *
-     *    Validate `assign_user_id` is exists or not
+     *    Validate `assign_to_user_id` is exists or not
      *
      * @apiParamExample {Json} Request-Example:
      *    {
