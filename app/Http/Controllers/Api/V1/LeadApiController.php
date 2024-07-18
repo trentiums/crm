@@ -1278,7 +1278,7 @@ class LeadApiController extends Controller
                     'created_at' => date("Y-m-d H:i:s")
                 ]);
             }
-            if ($lead->assign_to_user_id != $userRequest['assign_to_user_id']) {
+            if ($lead->assign_to_user_id != $request->assign_to_user_id) {
                 array_push($leadHistory, [
                     'lead_id' => $lead->id,
                     'company_user_id' => $companyUser->id,
