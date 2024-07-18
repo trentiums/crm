@@ -524,6 +524,14 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
+     *  @apiParam {Integer}     [assign_user_id]     Assign User Id
+     *
+     *    Validate `assign_user_id` is nullable
+     *
+     *    Validate `assign_user_id` is integer
+     *
+     *    Validate `assign_user_id` is exists or not
+     *
      * @apiParam {array}   [documents]    Document
      *
      *    Validate `documents` is array
@@ -552,7 +560,8 @@ class LeadApiController extends Controller
      *    "description": "Banner development",
      *    "deal_amount": "1200",
      *    "win_close_reason": "",
-     *    "deal_close_date": "2024-06-18"
+     *    "deal_close_date": "2024-06-18",
+     *    "assign_user_id": 2
      *    "documents" : "Demo.jpg"
      *    }
      *
@@ -661,6 +670,11 @@ class LeadApiController extends Controller
                     'date_format:' . config('panel.date_format'),
                     'nullable',
                 ],
+                'assign_to_user_id' => [
+                    'nullable',
+                    'integer',
+                    'exists:users,id,deleted_at,NULL'
+                ],
                 'documents' => [
                     'nullable',
                     'array'
@@ -710,6 +724,8 @@ class LeadApiController extends Controller
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
+                'assign_to_user_id.integer' => trans('label.user_id_integer_error_msg'),
+                'assign_to_user_id.exists' => trans('label.user_id_exists_error_msg'),
                 'documents.array' => trans('label.documents_array_error_msg')
             ]);
 
@@ -744,6 +760,8 @@ class LeadApiController extends Controller
                 $lead->win_close_reason = $userRequest['win_close_reason'] ?? null;
                 $lead->deal_close_date = $userRequest['deal_close_date'] ?? null;
                 $lead->country_id = isset($country) ? $country->id : null;
+                $lead->assign_from_user_id = isset($userRequest['assign_to_user_id']) ? $user->id :null;
+                $lead->assign_to_user_id = $userRequest['assign_to_user_id'] ?? null;
                 $lead->save();
 
                 if (isset($userRequest['product_services']) && !empty($userRequest['product_services'])) {
@@ -909,6 +927,14 @@ class LeadApiController extends Controller
      *
      *    Validate `deal_close_date` is date
      *
+     * @apiParam {Integer}     [assign_user_id]     Assign User Id
+     *
+     *    Validate `assign_user_id` is nullable
+     *
+     *    Validate `assign_user_id` is integer
+     *
+     *    Validate `assign_user_id` is exists or not
+     *
      * @apiParam {array}   [documents]    Document
      *
      *    Validate `documents` is file* @apiParam {file}   [documents]    Document
@@ -940,6 +966,7 @@ class LeadApiController extends Controller
      *    "deal_amount": "1200",
      *    "win_close_reason": "",
      *    "deal_close_date": "2024-06-18",
+     *    "assign_to_user_id": 2
      *    "documents": "Demo.jpg"
      *    }
      *
@@ -1053,6 +1080,11 @@ class LeadApiController extends Controller
                     'date_format:' . config('panel.date_format'),
                     'nullable',
                 ],
+                'assign_to_user_id' => [
+                    'nullable',
+                    'integer',
+                    'exists:users,id,deleted_at,NULL'
+                ],
                 'documents' => [
                     'nullable',
                     'array'
@@ -1102,6 +1134,8 @@ class LeadApiController extends Controller
                 'time_line.string' => trans('label.time_line_string_error_msg'),
                 'win_close_reason.string' => trans('label.win_close_reason_string_error_msg'),
                 'deal_close_date.string' => trans('label.deal_close_date_string_error_msg'),
+                'assign_to_user_id.integer' => trans('label.user_id_integer_error_msg'),
+                'assign_to_user_id.exists' => trans('label.user_id_exists_error_msg'),
                 'documents.array' => trans('label.documents_array_error_msg')
             ]);
 
@@ -1244,6 +1278,14 @@ class LeadApiController extends Controller
                     'created_at' => date("Y-m-d H:i:s")
                 ]);
             }
+            if ($lead->assign_to_user_id != $userRequest['assign_to_user_id']) {
+                array_push($leadHistory, [
+                    'lead_id' => $lead->id,
+                    'company_user_id' => $companyUser->id,
+                    'description' => 'Assign User Updated',
+                    'created_at' => date("Y-m-d H:i:s")
+                ]);
+            }
 
             if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
                 $lead->name = $userRequest['name'];
@@ -1262,6 +1304,8 @@ class LeadApiController extends Controller
                 $lead->win_close_reason = $userRequest['win_close_reason'] ?? null;
                 $lead->deal_close_date = $userRequest['deal_close_date'] ?? null;
                 $lead->country_id = isset($country) ? $country->id : null;
+                $lead->assign_from_user_id = isset($userRequest['assign_to_user_id']) ? $user->id :null;
+                $lead->assign_to_user_id = $userRequest['assign_to_user_id'] ?? null;
                 $lead->save();
 
                 LeadHistory::insert($leadHistory);
