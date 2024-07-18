@@ -1505,9 +1505,9 @@ class LeadApiController extends Controller
 
                 $leadHistory = new LeadHistory();
                 $leadHistory->lead_id = $lead->id;
-                $leadHistory->company_user_id = $companyUser->id;
+                $leadHistory->company_id = $companyUser->company_id;
+                $leadHistory->user_id = $user->id;
                 $leadHistory->description = $description;
-                $leadHistory->created_at = date("Y-m-d H:i:s");
                 $leadHistory->save();
                 return response()->json(['status' => true, 'message' => trans('label.lead_status_update_success_msg')], $this->successStatus);
             } else {
@@ -1852,14 +1852,14 @@ class LeadApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
 
-            $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion', 'company_user.user'])->findOrFail($userRequest['lead_id']);
+            $lead = Lead::with(['lead_status', 'lead_channel', 'product_services', 'lead_conversion'])->findOrFail($userRequest['lead_id']);
             if (($user->user_role == array_flip(Role::ROLES)['Company Admin'] && $user->companyUser->company_id == $lead->company_id) || ($user->user_role == array_flip(Role::ROLES)['Company Staff'] && ($lead->created_by == $user->id || $lead->assign_from_user_id == $user->id || $lead->assign_to_user_id == $user->id))) {
 
                 $leadHistory = new LeadHistory();
                 $leadHistory->lead_id = $lead->id;
-                $leadHistory->company_user_id = $companyUser->id;
-                $leadHistory->description = $user->name . ' show lead ' . $lead->id;
-                $leadHistory->created_at = date("Y-m-d H:i:s");
+                $leadHistory->company_id = $companyUser->company_id;
+                $leadHistory->user_id = $user->id;
+                $leadHistory->description = $user->name . ' viewed lead details';
                 $leadHistory->save();
 
                 return response()->json(['status' => true, 'data' => $lead], $this->successStatus);
