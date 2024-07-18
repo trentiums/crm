@@ -795,7 +795,6 @@ class LeadApiController extends Controller
                 return response()->json(['status' => false, 'message' => trans('label.invalid_login_credential_error_msg')], $this->successStatus);
             }
         } catch (Exception $ex) {
-            dd($ex);
             Auditable::log_audit_data('LeadApiController@save_lead Exception', null, config('settings.log_type')[0], $ex->getMessage());
             return response()->json(['status' => false, 'message' => trans('label.something_went_wrong_error_msg')], $this->successStatus);
         }
@@ -1194,14 +1193,6 @@ class LeadApiController extends Controller
                     }
 
                     LeadProductService::insert($arrData);
-
-                    $leadHistory = new LeadHistory();
-                    $leadHistory->lead_id = $lead->id;
-                    $leadHistory->company_id = $companyUser->company_id;
-                    $leadHistory->user_id = $user->id;
-                    $leadHistory->description = 'Lead product services updated';
-                    $leadHistory->created_at = date("Y-m-d H:i:s");
-                    $leadHistory->save();
                 }
 
                 if ($request->file('documents')) {
