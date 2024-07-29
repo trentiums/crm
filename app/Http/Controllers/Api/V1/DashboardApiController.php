@@ -293,7 +293,7 @@ class DashboardApiController extends Controller
             $userRequest = $request->all();
 
             if (isset($user->companyUser) && !empty($user->companyUser)) {
-                $leadList = Lead::select('id', 'name', 'phone', 'email', 'created_at', 'country_id')->with(['country' => function ($query) {
+                $leadList = Lead::select('id', 'name', 'phone', 'email', 'created_at', 'updated_at', 'country_id')->with(['country' => function ($query) {
                     $query->select('id', 'dialling_code');
                 }])->where(function ($query) use ($user) {
                     if ($user->user_role == array_flip(Role::ROLES)['Company Admin']) {
