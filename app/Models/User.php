@@ -90,4 +90,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(CompanyUser::class);
     }
+
+    public function productServices()
+    {
+        return $this->hasMany(ProductService::class);
+    }
 }
