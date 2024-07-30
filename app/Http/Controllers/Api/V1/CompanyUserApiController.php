@@ -560,8 +560,8 @@ class CompanyUserApiController extends Controller
                 if (isset($user->company) && !empty($user->company)) {
                     $userDetails = User::findOrFail($userRequest['user_id']);
                     if ($user->company->id == $userDetails->companyUser->company_id && $userDetails->user_role != array_flip(Role::ROLES)['Company Admin']) {
-                        if (isset($userDetails->companyUser->productServices) && !empty($userDetails->companyUser->productServices)) {
-                            foreach ($userDetails->companyUser->productServices as $productService) {
+                        if (isset($userDetails->productServices) && !empty($userDetails->productServices)) {
+                            foreach ($userDetails->productServices as $productService) {
                                 if (count($productService->leads) > 0) {
                                     Auditable::log_audit_data('CompanyUserApiController@delete_company_user Cannot delete company user', null, config('settings.log_type')[1], $userRequest);
                                     return response()->json(['status' => false, 'message' => trans("label.staff_user_service_can't_delete")], $this->successStatus);
