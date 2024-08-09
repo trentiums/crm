@@ -374,9 +374,11 @@ class LeadApiController extends Controller
             }
 
             if (isset($userRequest['search']) && !empty($userRequest['search'])) {
-                $leadConversion->where('leads.name', 'LIKE', '%' . $userRequest['search'] . '%')
-                    ->orWhere('leads.email', 'LIKE', '%' . $userRequest['search'] . '%')
-                    ->orWhere('leads.phone', 'LIKE', '%' . $userRequest['search'] . '%');
+                $leadConversion->where(function ($query) use ($userRequest) {
+                    $query->where('name', 'LIKE', '%' . $userRequest['search'] . '%')
+                          ->orWhere('email', 'LIKE', '%' . $userRequest['search'] . '%')
+                          ->orWhere('phone', 'LIKE', '%' . $userRequest['search'] . '%');
+                });
             }
 
             if (isset($userRequest['order_by']) && !empty($userRequest['order_by']) && isset($userRequest['sort_order']) && !empty($userRequest['sort_order'])) {
